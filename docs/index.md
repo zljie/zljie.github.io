@@ -1,6 +1,6 @@
 ---
 layout: home
-title: John Doe's Portfolio
+title: Johnson Zhao's Portfolio
 ---
 
 <div style="text-align:center;padding:40px 24px;">
