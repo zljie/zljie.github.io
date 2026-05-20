@@ -1,43 +1,12 @@
-# John Doe
+# Johnson Zhao
 
 ## About Me
-
-I am a Full-Stack Developer with 5+ years of experience building web applications. I specialize in Vue.js, TypeScript, and AI-driven interfaces.
+这里是我的个人档案中心，欢迎👏你的到来
 
 ## Skills
 
-**Frontend**
-- Vue.js / Nuxt / Vite
-- TypeScript
-- React
-- TailwindCSS / UnoCSS
-
-**Backend**
-- Node.js / Express / NestJS
-- Python / FastAPI
-- PostgreSQL / Redis
-
-**AI / ML**
-- OpenAI API
-- LangChain
-- ant-design-x-vue
+- AI时代端到端的解决方案工程师，从项目售前，项目方案，项目构建，项目汇报，项目运维均可以参与，新时代的FDE
 
 ## Experience
 
-**Senior Frontend Developer** — TechCorp (2022 - Present)
-
-Building AI-powered web applications with Vue and TypeScript. Led the development of a real-time collaboration platform serving 10k+ daily users.
-
-**Frontend Developer** — StartupXYZ (2019 - 2022)
-
-Developed and maintained multiple client projects using Vue 2/3 and React. Introduced TypeScript adoption across the team.
-
-## Education
-
-**B.S. Computer Science** — University of Technology (2015 - 2019)
-
-## Contact
-
-- Email: hello@example.com
-- GitHub: github.com/johndoe
-- Twitter: @johndoe
+**Todo。。。**
