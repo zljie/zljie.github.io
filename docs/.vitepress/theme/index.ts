@@ -7,6 +7,11 @@ import HomeLayout from './layouts/Home.vue'
 import ChatLayout from './layouts/Chat.vue'
 import './styles/custom.css'
 
+const ChatLayout = defineAsyncComponent({
+  loader: () => import('./layouts/Chat.vue'),
+  ssr: false,
+})
+
 const FloatChat = defineAsyncComponent({
   loader: () => import('./layouts/FloatChat.vue'),
   ssr: false,

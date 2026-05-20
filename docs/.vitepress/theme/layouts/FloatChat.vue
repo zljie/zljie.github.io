@@ -87,7 +87,10 @@ import { ref, watch, nextTick, computed } from 'vue'
 import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
 import { useChat } from './useChat'
 
-const config = computed(() => window.__CHAT_CONFIG__ || {})
+const config = computed(() => {
+  if (typeof window === 'undefined') return {}
+  return window.__CHAT_CONFIG__ || {}
+})
 
 const isOpen = ref(false)
 const unread = ref(0)
