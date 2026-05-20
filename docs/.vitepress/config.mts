@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitepress'
 
+const CHAT_ENDPOINT = (import.meta as any).env?.CHAT_ENDPOINT || 'http://localhost:8000/chat'
+
 export default defineConfig({
   title: "John Doe's Portfolio",
   description: 'Personal CV, blog, and AI chat interface',
@@ -21,6 +23,11 @@ export default defineConfig({
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
       },
+    ],
+    [
+      'script',
+      {},
+      `window.__CHAT_CONFIG__ = { endpoint: '${CHAT_ENDPOINT}' };`,
     ],
   ],
 

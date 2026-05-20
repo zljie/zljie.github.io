@@ -1,6 +1,5 @@
 <template>
   <DefaultTheme.Layout>
-    <FloatChat />
     <template #hero>
       <div class="vp-home-hero">
         <div class="avatar-wrapper">
@@ -45,7 +44,6 @@
 <script setup lang="ts">
 import DefaultTheme from 'vitepress/theme'
 import { VPButton } from 'vitepress/theme'
-import FloatChat from './FloatChat.vue'
 
 defineOptions({ name: 'HomeLayout' })
 </script>

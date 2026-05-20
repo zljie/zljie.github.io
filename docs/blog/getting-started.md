@@ -83,6 +83,18 @@ export default {
 }
 ```
 
+To avoid SSR build issues, load the floating chat component asynchronously with `ssr: false`:
+
+```typescript
+import { defineAsyncComponent } from 'vue'
+import DefaultTheme from 'vitepress/theme'
+
+const FloatChat = defineAsyncComponent({
+  loader: () => import('./layouts/FloatChat.vue'),
+  ssr: false,
+})
+```
+
 ## Running the Site
 
 ```bash

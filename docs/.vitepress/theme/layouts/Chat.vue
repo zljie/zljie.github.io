@@ -2,8 +2,8 @@
   <div class="chat-page">
     <div class="chat-header">
       <div class="header-info">
-        <span class="header-title">AI Chat</span>
-        <span class="header-subtitle">Powered by ant-design-x-vue</span>
+        <span class="header-title">{{ config.title || 'AI Chat' }}</span>
+        <span class="header-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</span>
       </div>
     </div>
 
@@ -58,11 +58,12 @@
 
         <div class="chat-input-area">
           <Sender
-            v-model="inputValue"
+            :value="inputValue"
+            @update:value="(v: string) => inputValue = v"
             :disabled="loading"
             placeholder="Type a message..."
-            @send="sendMessage"
-            @submit="sendMessage"
+            @send="handleSendMessage"
+            @submit="handleSendMessage"
           />
         </div>
       </div>
@@ -71,19 +72,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
+import { useChat, type ChatMessage } from './useChat'
 
-interface Message {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-}
+const config = computed(() => window.__CHAT_CONFIG__ || {})
+
+const { messages, inputValue, loading, messagesRef, sendMessage } = useChat()
 
 interface Conversation {
   id: number
   title: string
-  messages: Message[]
+  messages: ChatMessage[]
 }
 
 const conversations = ref<Conversation[]>([
@@ -91,11 +91,6 @@ const conversations = ref<Conversation[]>([
   { id: 2, title: 'Chat 2', messages: [] },
 ])
 const activeConvId = ref(1)
-const messages = ref<Message[]>([])
-const inputValue = ref('')
-const loading = ref(false)
-const messagesRef = ref<HTMLElement>()
-const messageIdCounter = ref(0)
 const welcomeUser = ref({ name: 'Guest' })
 
 function selectConversation(id: number) {
@@ -110,61 +105,14 @@ function createConversation() {
   selectConversation(newId)
 }
 
-function scrollToBottom() {
-  nextTick(() => {
-    if (messagesRef.value) {
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-    }
-  })
-}
-
-function mockReply(userMessage: string): string {
-  const lower = userMessage.toLowerCase()
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return "Hello! I'm your AI assistant. How can I help you today?"
-  }
-  if (lower.includes('who are you') || lower.includes('about')) {
-    return "I'm an AI assistant built with ant-design-x-vue and Vue 3. I can chat with you, answer questions, and help with various tasks!"
-  }
-  if (lower.includes('help')) {
-    return "I can help you with:\n- Answering questions\n- Writing code snippets\n- Explaining concepts\n- Brainstorming ideas\n\nJust type your question!"
-  }
-  return `You said: "${userMessage}"\n\nThis is a mock response. To connect to a real AI backend, integrate OpenAI or Claude API at the sendMessage function in docs/.vitepress/theme/layouts/Chat.vue.`
-}
-
-async function sendMessage() {
+async function handleSendMessage() {
   const text = inputValue.value.trim()
-  if (!text || loading.value) return
-
-  inputValue.value = ''
-
-  const userMsg: Message = {
-    id: ++messageIdCounter.value,
-    role: 'user',
-    content: text,
-  }
-  messages.value.push(userMsg)
-  scrollToBottom()
-
-  loading.value = true
-
-  await new Promise((r) => setTimeout(r, 800))
-
-  const reply: Message = {
-    id: ++messageIdCounter.value,
-    role: 'assistant',
-    content: mockReply(text),
-  }
-  messages.value.push(reply)
-
+  await sendMessage()
   const conv = conversations.value.find((c) => c.id === activeConvId.value)
-  if (conv) {
+  if (conv && text) {
     conv.messages = [...messages.value]
     conv.title = text.slice(0, 20) + (text.length > 20 ? '...' : '')
   }
-
-  loading.value = false
-  scrollToBottom()
 }
 </script>
 

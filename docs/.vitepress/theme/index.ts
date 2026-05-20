@@ -1,11 +1,16 @@
 import { h } from 'vue'
 import { useData } from 'vitepress'
+import { defineAsyncComponent } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import * as AntdXComponents from 'ant-design-x-vue'
 import HomeLayout from './layouts/Home.vue'
 import ChatLayout from './layouts/Chat.vue'
-import FloatChat from './layouts/FloatChat.vue'
 import './styles/custom.css'
+
+const FloatChat = defineAsyncComponent({
+  loader: () => import('./layouts/FloatChat.vue'),
+  ssr: false,
+})
 
 export default {
   extends: DefaultTheme,

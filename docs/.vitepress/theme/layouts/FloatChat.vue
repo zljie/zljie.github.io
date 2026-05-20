@@ -10,8 +10,8 @@
               alt="AI"
             />
             <div>
-              <div class="float-title">AI Assistant</div>
-              <div class="float-subtitle">Powered by ant-design-x-vue</div>
+              <div class="float-title">{{ config.title || 'AI Assistant' }}</div>
+              <div class="float-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</div>
             </div>
           </div>
           <button class="float-close" @click="isOpen = false">
@@ -55,7 +55,8 @@
 
         <div class="float-input">
           <Sender
-            v-model="inputValue"
+            :value="inputValue"
+            @update:value="(v: string) => inputValue = v"
             :disabled="loading"
             placeholder="Type a message..."
             @send="sendMessage"
@@ -82,21 +83,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
+import { useChat } from './useChat'
 
-interface Message {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-}
+const config = computed(() => window.__CHAT_CONFIG__ || {})
 
 const isOpen = ref(false)
-const messages = ref<Message[]>([])
-const inputValue = ref('')
-const loading = ref(false)
-const messagesRef = ref<HTMLElement>()
-const messageIdCounter = ref(0)
 const unread = ref(0)
 const welcomeUser = ref({ name: 'Guest' })
 const chatStyle = ref({ bottom: '100px', right: '24px' })
@@ -104,6 +97,22 @@ const chatStyle = ref({ bottom: '100px', right: '24px' })
 let dragOffsetX = 0
 let dragOffsetY = 0
 let isDragging = false
+
+const { messages, inputValue, loading, messagesRef, sendMessage, scrollToBottom } = useChat()
+
+watch(isOpen, (val) => {
+  if (val) {
+    unread.value = 0
+    nextTick(scrollToBottom)
+  }
+})
+
+watch(messages, () => {
+  if (!isOpen.value) {
+    unread.value++
+  }
+  nextTick(scrollToBottom)
+}, { deep: true })
 
 function startDrag(e: MouseEvent) {
   if ((e.target as HTMLElement).closest('.float-close')) return
@@ -130,63 +139,6 @@ function stopDrag() {
   isDragging = false
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
-}
-
-watch(isOpen, (val) => {
-  if (val) {
-    unread.value = 0
-    nextTick(scrollToBottom)
-  }
-})
-
-watch(messages, () => {
-  if (!isOpen.value) {
-    unread.value++
-  }
-  nextTick(scrollToBottom)
-}, { deep: true })
-
-function scrollToBottom() {
-  nextTick(() => {
-    if (messagesRef.value) {
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-    }
-  })
-}
-
-function mockReply(userMessage: string): string {
-  const lower = userMessage.toLowerCase()
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return "Hello! I'm your AI assistant. How can I help you today?"
-  }
-  if (lower.includes('who are you') || lower.includes('about')) {
-    return "I'm an AI assistant built with ant-design-x-vue and Vue 3. I can chat with you, answer questions, and help with various tasks!"
-  }
-  if (lower.includes('help')) {
-    return "I can help you with:\n- Answering questions\n- Writing code snippets\n- Explaining concepts\n- Brainstorming ideas\n\nJust type your question!"
-  }
-  return `You said: "${userMessage}"\n\nThis is a mock response. To connect a real AI backend, edit the mockReply function in docs/.vitepress/theme/layouts/FloatChat.vue.`
-}
-
-async function sendMessage() {
-  const text = inputValue.value.trim()
-  if (!text || loading.value) return
-
-  inputValue.value = ''
-
-  const userMsg: Message = { id: ++messageIdCounter.value, role: 'user', content: text }
-  messages.value.push(userMsg)
-  scrollToBottom()
-
-  loading.value = true
-
-  await new Promise((r) => setTimeout(r, 800))
-
-  const reply: Message = { id: ++messageIdCounter.value, role: 'assistant', content: mockReply(text) }
-  messages.value.push(reply)
-
-  loading.value = false
-  scrollToBottom()
 }
 </script>
 
