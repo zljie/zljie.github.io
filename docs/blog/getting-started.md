@@ -1,3 +1,9 @@
+---
+title: Getting Started with VitePress
+date: 2026-05-20
+description: Learn how to build a personal site with VitePress, Vue components, and ant-design-x-vue.
+---
+
 # Getting Started with VitePress
 
 Published: May 20, 2026

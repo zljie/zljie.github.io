@@ -19,8 +19,8 @@
         <!-- Top-Left: Identity -->
         <div class="quadrant q-identity">
           <p class="hero-label">PORTFOLIO</p>
-          <h1 class="hero-name">JOHN DOE</h1>
-          <p class="hero-role">Full-Stack Developer &amp; AI Enthusiast</p>
+          <h1 class="hero-name">JOHNSON ZHAO</h1>
+          <p class="hero-role">端到端解决工程师</p>
           <div class="hero-actions">
             <a href="/cv" class="btn-primary">VIEW MY CV</a>
             <a href="/chat" class="btn-outline">LET'S TALK</a>
@@ -63,8 +63,7 @@
             WHO AM I
           </h2>
           <p class="about-text">
-            Passionate full-stack developer focused on building beautiful, performant
-            web applications with modern JavaScript frameworks and AI technologies.
+            技术产品经理 + 敏捷教练，擅长从 0 到 1 推动项目落地。代码开发、团队管理、跨部门协作——我习惯在模糊中找到方向，把复杂的事情做成。
           </p>
           <div class="about-stats">
             <div v-for="stat in stats" :key="stat.label" class="stat-item">
@@ -79,7 +78,20 @@
       </div>
     </section>
 
-   
+    <!-- Skills Progress Bar Section -->
+    <section class="skills-section">
+      <div class="section-inner">
+        <h1 class="section-heading">
+          <span class="heading-line"></span>
+          SKILLS
+        </h1>
+        <h2 class="section-heading">
+          <span class="heading-line"></span>
+          技能曾是一道墙，如今是一扇门——门后不是你会什么，而是你想去往哪里。
+        </h2>
+      </div>
+    </section>
+
     <!-- Posts Section -->
     <section class="posts-section">
       <div class="section-inner">
@@ -122,17 +134,17 @@ const announcements = [
 ]
 
 const skills = [
-  { name: 'Vue.js / Nuxt', level: 90 },
-  { name: 'TypeScript', level: 85 },
-  { name: 'Node.js', level: 80 },
-  { name: 'Python / AI', level: 75 },
-  { name: 'UI/UX Design', level: 70 },
+  { name: 'C#/.net', level: 90 },
+  { name: 'Node.js', level: 85 },
+  { name: 'javascript', level: 80 },
+  { name: 'SQL', level: 75 },
+  { name: 'Python', level: 75 },
+  { name: 'AI', level: 70 },
 ]
 
 const stats = [
-  { value: '5+', label: 'Years Exp.' },
-  { value: '30+', label: 'Projects' },
-  { value: '10+', label: 'Happy Clients' },
+  { value: '10+', label: 'Years Exp.' },
+  { value: '20+', label: 'Projects' },
 ]
 
 const experiences = [
@@ -153,26 +165,29 @@ const experiences = [
   },
 ]
 
-const posts = [
-  {
-    href: '/blog/getting-started',
-    date: 'May 20, 2026',
-    title: 'Getting Started with VitePress',
-    excerpt: 'Learn how to build a personal site with VitePress, Vue components, and ant-design-x-vue.',
-  },
-  {
-    href: '/blog/getting-started',
-    date: 'May 10, 2026',
-    title: 'Building AI-Powered UIs',
-    excerpt: 'A practical guide to integrating AI capabilities into modern web applications.',
-  },
-  {
-    href: '/blog/getting-started',
-    date: 'Apr 25, 2026',
-    title: 'TypeScript Best Practices',
-    excerpt: 'Essential patterns and practices for writing maintainable TypeScript code.',
-  },
-]
+const postModules = import.meta.glob('/blog/*.md', { eager: true }) as Record<
+  string,
+  { frontmatter: { title?: string; date?: string; description?: string } }
+>
+
+const posts = Object.entries(postModules)
+  .map(([path, mod]) => {
+    const slug = path.replace('/blog/', '').replace('.md', '')
+    const fm = mod.frontmatter ?? {}
+    return {
+      href: `/blog/${slug}`,
+      date: fm.date ?? '',
+      title: fm.title ?? slug,
+      excerpt: fm.description ?? '',
+    }
+  })
+  .filter((p) => p.title)
+  .sort((a, b) => {
+    if (!a.date && !b.date) return 0
+    if (!a.date) return 1
+    if (!b.date) return -1
+    return b.date.localeCompare(a.date)
+  })
 </script>
 
 <style scoped>
