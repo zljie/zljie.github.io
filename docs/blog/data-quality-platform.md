@@ -2,6 +2,7 @@
 title: 数据质量管理平台 — 企业数据治理实践
 date: 2026-03-01
 description: 从 0 到 1 构建企业级数据质量管理平台，覆盖数据 ETL、QA、OLAP 分析与报表生产。
+cover: https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80
 ---
 
 # 数据质量管理平台 — 企业数据治理实践

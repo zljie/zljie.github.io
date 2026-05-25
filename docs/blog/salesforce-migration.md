@@ -2,6 +2,7 @@
 title: Salesforce 迁移 — 自研 CRM 替代方案实践
 date: 2026-09-01
 description: 从 Salesforce 迁移到自研平台，完成 CRM、合约管理、电子签约系统的完整替换，节省 80% 维护成本。
+cover: https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80
 ---
 
 # Salesforce 迁移 — 自研 CRM 替代方案实践

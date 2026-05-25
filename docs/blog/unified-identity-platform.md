@@ -2,6 +2,7 @@
 title: 统一认证平台 — 产品设计复盘
 date: 2026-02-01
 description: 统一认证平台产品设计复盘，涵盖身份认证、授权管理、审计日志的架构思路与产品方案。
+cover: https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80
 ---
 
 # 统一认证平台 — 产品设计复盘

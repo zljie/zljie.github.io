@@ -2,6 +2,7 @@
 title: VitePress 环境变量配置踩坑记
 date: 2026-05-25
 description: 记录在 VitePress 项目中通过环境变量配置动态 API 地址时遇到的坑，以及排查和解决的全过程。
+cover: https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80
 ---
 
 # VitePress 环境变量配置踩坑记

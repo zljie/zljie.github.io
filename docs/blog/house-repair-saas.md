@@ -2,6 +2,7 @@
 title: 房屋工单维修 SaaS 产品 — 低代码白标方案设计
 date: 2026-06-01
 description: 从内部工具到 SaaS 产品的演进过程，涵盖低代码白标、多租户架构与打包方案设计。
+cover: https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80
 ---
 
 # 房屋工单维修 SaaS 产品 — 低代码白标方案设计

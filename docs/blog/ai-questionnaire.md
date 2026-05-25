@@ -2,6 +2,7 @@
 title: AI 问卷信息采集 — 产品设计实践
 date: 2026-01-01
 description: 通过 AI 能力重构房屋维修场景的问卷信息采集，实现 70% 有效问卷收集率提升。
+cover: https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80
 ---
 
 # AI 问卷信息采集 — 产品设计实践

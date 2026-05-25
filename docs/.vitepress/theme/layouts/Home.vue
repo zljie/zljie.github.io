@@ -31,7 +31,7 @@
         <div class="quadrant q-avatar">
           <div class="hero-image-placeholder">
             <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=JohnsonZhao"
+              src="https://api.dicebear.com/7.x/bottts/svg?seed=JohnsonZhao"
               alt="赵龙杰"
               class="hero-avatar"
             />
@@ -101,7 +101,10 @@
         </h2>
         <div class="posts-grid">
           <a v-for="post in posts" :key="post.title" :href="post.href" class="post-card">
-            <div class="post-image-placeholder"></div>
+            <div class="post-image-placeholder" v-if="post.cover">
+              <img :src="post.cover" :alt="post.title" class="post-cover" />
+            </div>
+            <div v-else class="post-image-placeholder"></div>
             <div class="post-body">
               <div class="post-date">{{ post.date }}</div>
               <h3 class="post-title">{{ post.title }}</h3>
@@ -178,7 +181,7 @@ const experiences = [
 
 const postModules = import.meta.glob('/blog/*.md', { eager: true }) as Record<
   string,
-  { frontmatter: { title?: string; date?: string; description?: string } }
+  { frontmatter: { title?: string; date?: string; description?: string; cover?: string } }
 >
 
 const posts = Object.entries(postModules)
@@ -190,6 +193,7 @@ const posts = Object.entries(postModules)
       date: fm.date ?? '',
       title: fm.title ?? slug,
       excerpt: fm.description ?? '',
+      cover: fm.cover ?? '',
     }
   })
   .filter((p) => p.title)
@@ -618,6 +622,14 @@ const posts = Object.entries(postModules)
   aspect-ratio: 16/9;
   background: var(--color-bg-dark);
   opacity: 0.08;
+  overflow: hidden;
+}
+
+.post-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
 }
 
 .post-body {

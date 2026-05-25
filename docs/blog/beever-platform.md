@@ -2,6 +2,7 @@
 title: BeEver 研发平台 — 低代码中台设计实践
 date: 2026-01-01
 description: BeEver 是一个元数据驱动的企业级低代码中台，基于 SCAF 场景化组装式框架的设计与实现。
+cover: https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80
 ---
 
 # BeEver 研发平台 — 低代码中台设计实践
