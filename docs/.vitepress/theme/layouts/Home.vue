@@ -19,8 +19,8 @@
         <!-- Top-Left: Identity -->
         <div class="quadrant q-identity">
           <p class="hero-label">PORTFOLIO</p>
-          <h1 class="hero-name">JOHNSON ZHAO</h1>
-          <p class="hero-role">端到端解决工程师</p>
+          <h1 class="hero-name">ZHAO LONGJIE</h1>
+          <p class="hero-role">企业数字化产品专家</p>
           <div class="hero-actions">
             <a href="/cv" class="btn-primary">VIEW MY CV</a>
             <a href="/chat" class="btn-outline">LET'S TALK</a>
@@ -31,8 +31,8 @@
         <div class="quadrant q-avatar">
           <div class="hero-image-placeholder">
             <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=JohnDoe"
-              alt="John Doe"
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=JohnsonZhao"
+              alt="赵龙杰"
               class="hero-avatar"
             />
           </div>
@@ -60,10 +60,10 @@
         <div class="quadrant q-about">
           <h2 class="quad-heading">
             <span class="heading-line"></span>
-            WHO AM I
+            ABOUT ME
           </h2>
           <p class="about-text">
-            技术产品经理 + 敏捷教练，擅长从 0 到 1 推动项目落地。代码开发、团队管理、跨部门协作——我习惯在模糊中找到方向，把复杂的事情做成。
+            10 年产品研发经验，在企业数字化架构和团队管理方面展现了卓越的领导能力和创新精神。敏捷联盟认证敏捷教练，擅长推动团队完成技术转型和流程优化，实现复杂项目的顺利推进。
           </p>
           <div class="about-stats">
             <div v-for="stat in stats" :key="stat.label" class="stat-item">
@@ -116,8 +116,8 @@
     <!-- Footer CTA -->
     <section class="footer-cta">
       <div class="cta-inner">
-        <h2 class="cta-heading">INTERESTED IN WORKING TOGETHER?</h2>
-        <p class="cta-sub">Let's build something great.</p>
+        <h2 class="cta-heading">READY TO BUILD TOGETHER?</h2>
+        <p class="cta-sub">Let's create something great.</p>
         <a href="/chat" class="btn-primary btn-large">LET'S TALK</a>
       </div>
     </section>
@@ -128,40 +128,51 @@
 defineOptions({ name: 'HomeLayout' })
 
 const announcements = [
-  'Open for freelance projects — Spring 2026',
-  'New article: Building AI-Powered UIs is now live',
-  'Currently based in San Francisco',
+  '10 年产品研发经验，专注于企业数字化架构与敏捷转型',
+  '敏捷联盟认证敏捷教练',
+  '低代码平台从 0 到 1 建设者',
 ]
 
 const skills = [
-  { name: 'C#/.net', level: 90 },
-  { name: 'Node.js', level: 85 },
-  { name: 'javascript', level: 80 },
+  { name: '产品设计', level: 95 },
+  { name: '敏捷教练', level: 90 },
+  { name: 'C#/.Net', level: 85 },
+  { name: 'Node.js', level: 80 },
   { name: 'SQL', level: 75 },
-  { name: 'Python', level: 75 },
-  { name: 'AI', level: 70 },
+  { name: 'AI 智能体', level: 70 },
 ]
 
 const stats = [
   { value: '10+', label: 'Years Exp.' },
-  { value: '20+', label: 'Projects' },
+  { value: '8+', label: 'Major Projects' },
+  { value: '200+', label: 'Team Led' },
 ]
 
 const experiences = [
   {
-    role: 'Senior Frontend Engineer',
-    company: 'TechCorp',
-    period: '2023 — Present',
+    role: '产品经理 / 敏捷教练',
+    company: '统一认证平台',
+    period: '2025 — Present',
   },
   {
-    role: 'Full-Stack Developer',
-    company: 'StartupXYZ',
-    period: '2021 — 2023',
+    role: '产品经理',
+    company: 'BeEver 低代码中台',
+    period: '2025 — Present',
   },
   {
-    role: 'Frontend Developer',
-    company: 'Digital Agency',
-    period: '2019 — 2021',
+    role: '技术产品经理',
+    company: '房屋维修 SaaS / AI 问卷',
+    period: '2024 — 2025',
+  },
+  {
+    role: '产品负责人',
+    company: '自研低代码平台',
+    period: '2021 — 2024',
+  },
+  {
+    role: '敏捷教练',
+    company: '公共服务组转型',
+    period: '2020 — 2021',
   },
 ]
 
