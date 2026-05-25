@@ -40,6 +40,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        env:
+          CHAT_ENDPOINT: https://od-agent-production.up.railway.app/chat
         run: pnpm docs:build
 
       - name: Upload artifact
