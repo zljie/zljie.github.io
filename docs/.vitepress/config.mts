@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'http://localhost:8000/chat'
 
 export default defineConfig({
-  title: "John Doe's Portfolio",
+  title: "赵龙杰's Portfolio",
   description: 'Personal CV, blog, and AI chat interface',
 
   head: [
@@ -33,17 +33,25 @@ export default defineConfig({
 
   themeConfig: {
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'CV', link: '/cv' },
-      { text: 'Blog', link: '/blog/' },
-      { text: 'AI Chat', link: '/chat' },
+      { text: '首页', link: '/' },
+      { text: '简历', link: '/cv' },
+      { text: '博客', link: '/blog/' },
+      { text: 'AI 对话', link: '/chat' },
     ],
 
     sidebar: [
       {
-        text: 'Blog',
+        text: '博客',
         items: [
-          { text: 'Getting Started', link: '/blog/getting-started' },
+          { text: 'VitePress 环境变量配置踩坑记', link: '/blog/vitepress-env-config-debugging' },
+          { text: '统一认证平台', link: '/blog/unified-identity-platform' },
+          { text: 'BeEver 研发平台', link: '/blog/beever-platform' },
+          { text: '房屋工单维修 SaaS 产品', link: '/blog/house-repair-saas' },
+          { text: 'AI 问卷信息采集', link: '/blog/ai-questionnaire' },
+          { text: '自研低代码平台', link: '/blog/self-developed-lowcode' },
+          { text: '公共服务组敏捷转型', link: '/blog/agile-transformation' },
+          { text: '数据质量管理平台', link: '/blog/data-quality-platform' },
+          { text: 'Salesforce 迁移', link: '/blog/salesforce-migration' },
         ],
       },
     ],
@@ -55,7 +63,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2026 John Doe',
+      copyright: 'Copyright © 2026 赵龙杰',
     },
   },
 
