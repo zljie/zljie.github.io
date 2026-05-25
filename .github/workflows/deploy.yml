@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CHAT_ENDPOINT: https://od-agent-production.up.railway.app/chat
     steps:
       - name: Checkout
         uses: actions/checkout@v4
