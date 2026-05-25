@@ -101,10 +101,9 @@
         </h2>
         <div class="posts-grid">
           <a v-for="post in posts" :key="post.title" :href="post.href" class="post-card">
-            <div class="post-image-placeholder" v-if="post.cover">
-              <img :src="post.cover" :alt="post.title" class="post-cover" />
+            <div class="post-image-placeholder">
+              <img v-if="post.cover" :src="post.cover" :alt="post.title" class="post-cover" />
             </div>
-            <div v-else class="post-image-placeholder"></div>
             <div class="post-body">
               <div class="post-date">{{ post.date }}</div>
               <h3 class="post-title">{{ post.title }}</h3>
@@ -179,14 +178,14 @@ const experiences = [
   },
 ]
 
-const postModules = import.meta.glob('/blog/*.md', { eager: true }) as Record<
+const postModules = import.meta.glob('../../blog/*.md', { eager: true }) as Record<
   string,
   { frontmatter: { title?: string; date?: string; description?: string; cover?: string } }
 >
 
 const posts = Object.entries(postModules)
   .map(([path, mod]) => {
-    const slug = path.replace('/blog/', '').replace('.md', '')
+    const slug = path.replace('../../blog/', '').replace('.md', '')
     const fm = mod.frontmatter ?? {}
     return {
       href: `/blog/${slug}`,
@@ -620,16 +619,18 @@ const posts = Object.entries(postModules)
 .post-image-placeholder {
   width: 100%;
   aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.post-image-placeholder:not(:has(.post-cover)) {
   background: var(--color-bg-dark);
   opacity: 0.08;
-  overflow: hidden;
 }
 
 .post-cover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 1;
 }
 
 .post-body {
