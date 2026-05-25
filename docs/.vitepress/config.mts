@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 
-const CHAT_ENDPOINT = (import.meta as any).env?.CHAT_ENDPOINT || 'http://localhost:8000/chat'
+const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'http://localhost:8000/chat'
 
 export default defineConfig({
   title: "John Doe's Portfolio",
