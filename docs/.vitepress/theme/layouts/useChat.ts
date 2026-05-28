@@ -87,7 +87,12 @@ export function useChat() {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          messages: messages.value
+            .filter((m) => m.role === 'user')
+            .map((m) => ({ role: 'user', content: m.content })),
+          stream: false,
+        }),
       })
       const data = await response.json()
       const reply: ChatMessage = {
@@ -133,7 +138,12 @@ export function useChat() {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          messages: messages.value
+            .filter((m) => m.role === 'user')
+            .map((m) => ({ role: 'user', content: m.content })),
+          stream: true,
+        }),
       })
 
       if (!response.body) {

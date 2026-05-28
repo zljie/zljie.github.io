@@ -32,11 +32,25 @@ export function mockStreamingChat() {
         }
 
         // Read user message from request body
+        // Supports both formats:
+        //   Simple:   { "message": "hello", "stream": true }
+        //   deep-chat: { "messages": [{"role":"user","content":"hello"}], "stream": true }
         let userMessage = ''
         try {
           const body = await readBody(req)
           const parsed = JSON.parse(body)
-          userMessage = parsed.message || ''
+          if (typeof parsed.message === 'string' && parsed.message.trim()) {
+            userMessage = parsed.message.trim()
+          } else if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+            // Extract the last user message from the conversation history
+            for (let i = parsed.messages.length - 1; i >= 0; i--) {
+              const msg = parsed.messages[i]
+              if (msg.role === 'user' && typeof msg.content === 'string' && msg.content.trim()) {
+                userMessage = msg.content.trim()
+                break
+              }
+            }
+          }
         } catch {}
 
         // Simulate realistic streaming delay
