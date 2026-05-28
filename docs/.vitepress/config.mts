@@ -52,6 +52,7 @@ export default defineConfig({
           { text: '公共服务组敏捷转型', link: '/blog/agile-transformation' },
           { text: '数据质量管理平台', link: '/blog/data-quality-platform' },
           { text: 'Salesforce 迁移', link: '/blog/salesforce-migration' },
+          { text: '本体驱动 Agent 时代', link: '/blog/ontology-system-insight' },
         ],
       },
     ],
