@@ -178,7 +178,7 @@ const experiences = [
   },
 ]
 
-const postModules = import.meta.glob('../../blog/*.md', { eager: true }) as Record<
+const postModules = import.meta.glob('docs/blog/*.md', { eager: true }) as Record<
   string,
   { frontmatter: { title?: string; date?: string; description?: string; cover?: string } }
 >

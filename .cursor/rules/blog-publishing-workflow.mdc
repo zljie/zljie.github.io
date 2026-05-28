@@ -1,0 +1,65 @@
+---
+description: Blog publishing workflow — add/edit a blog post
+globs: docs/blog/*.md
+alwaysApply: true
+---
+
+# Blog Publishing Workflow
+
+When adding a new blog post or updating an existing one, follow this workflow to ensure the post appears in both the homepage LATEST POSTS section and the sidebar navigation.
+
+## Step 1 — Frontmatter (Required)
+
+Every blog post file must start with a YAML frontmatter block. This is the **only thing needed** for the homepage LATEST POSTS section to auto-discover the post.
+
+```yaml
+---
+title: <文章标题>
+date: <YYYY-MM-DD>
+description: <简短描述，用于卡片摘要>
+cover: <封面图 URL>
+tags:
+  - <标签1>
+  - <标签2>
+---
+```
+
+- `title`: 文章标题，用于 LATEST POSTS 卡片和浏览器标题
+- `date`: 发布日期，格式 `YYYY-MM-DD`，用于 LATEST POSTS 排序（最新优先）
+- `description`: 简短描述（1-2 句话），显示在 LATEST POSTS 卡片摘要中
+- `cover`: 封面图 URL，支持绝对 URL 或项目内路径（放在 `docs/public/blog/img/` 下，引用格式 `/blog/img/<文件名>`）
+- `tags`: 标签数组，可选
+
+## Step 2 — Sidebar Navigation
+
+After the frontmatter, add the post to `docs/.vitepress/config.mts` inside `themeConfig.sidebar[0].items`:
+
+```ts
+{ text: '<显示名称>', link: '/blog/<文件名前缀>' }
+```
+
+- The link must match the URL that `import.meta.glob('docs/blog/*.md')` generates from the filename
+- Filename pattern: `docs/blog/<任意名称>.md` → URL is `/blog/<任意名称>`
+
+## Step 3 — Images (If Any)
+
+If the post includes inline images:
+1. Place image files under `docs/public/blog/img/`
+2. Reference them in markdown as `/blog/img/<文件名>`
+
+If the post references an external image for the cover, use a full HTTPS URL.
+
+## Step 4 — Commit & Push
+
+```bash
+git add <changed files> && git commit -m "docs: <commit message>" && git push
+```
+
+Pushing to `main` automatically triggers the VitePress CI build and deploy.
+
+## Common Mistakes
+
+- **LATEST POSTS doesn't show a post**: Missing or malformed frontmatter `title` field — the filter requires `p.title` to be truthy
+- **LATEST POSTS shows wrong URL**: The glob derives the URL from the filename. Ensure the link in `config.mts` matches the filename (without `.md`)
+- **Cover image 404**: Cover must be a valid URL or a path under `docs/public/` (not `docs/blog/img/`)
+- **Post not in sidebar**: Manually add an entry to `config.mts` — the sidebar is not auto-generated
