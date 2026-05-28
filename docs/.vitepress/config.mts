@@ -53,6 +53,7 @@ export default defineConfig({
           { text: '数据质量管理平台', link: '/blog/data-quality-platform' },
           { text: 'Salesforce 迁移', link: '/blog/salesforce-migration' },
           { text: '本体驱动 Agent 时代', link: '/blog/ontology-system-insight' },
+          { text: 'Chatbot 输入理解与预处理工程', link: '/blog/2026-05-28_Chatbot输入理解与预处理工程-8层链路架构设计' },
         ],
       },
     ],
