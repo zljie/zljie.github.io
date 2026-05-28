@@ -32,7 +32,16 @@
                 src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
                 alt="AI"
               />
-              <Bubble :content="msg.content" :role="msg.role" />
+              <Bubble
+                v-if="msg.role === 'user'"
+                :content="msg.content"
+                :role="msg.role"
+              />
+              <MarkdownBubble
+                v-else
+                :content="msg.content"
+                role="assistant"
+              />
               <img
                 v-if="msg.role === 'user'"
                 class="float-avatar-sm"
@@ -86,6 +95,7 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
 import { useChat } from './useChat'
+import MarkdownBubble from './MarkdownBubble.vue'
 
 const config = computed(() => {
   if (typeof window === 'undefined') return {}
@@ -277,7 +287,7 @@ function stopDrag() {
 .float-fab {
   position: fixed;
   z-index: 9998;
-  bottom: 24px;
+  bottom: 104px;
   right: 24px;
   width: 60px;
   height: 60px;

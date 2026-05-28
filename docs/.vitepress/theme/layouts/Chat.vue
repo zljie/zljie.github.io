@@ -35,7 +35,16 @@
                 src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
                 alt="AI"
               />
-              <Bubble :content="msg.content" :role="msg.role" />
+              <Bubble
+                v-if="msg.role === 'user'"
+                :content="msg.content"
+                :role="msg.role"
+              />
+              <MarkdownBubble
+                v-else
+                :content="msg.content"
+                role="assistant"
+              />
               <img
                 v-if="msg.role === 'user'"
                 class="avatar"
@@ -75,6 +84,7 @@
 import { ref, computed } from 'vue'
 import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
 import { useChat, type ChatMessage } from './useChat'
+import MarkdownBubble from './MarkdownBubble.vue'
 
 const config = computed(() => {
   if (typeof window === 'undefined') return {}
