@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { mockStreamingChat } from './theme/mockStreamingChat'
 
-const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || '/chat'
+const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || '/api/chat'
 
 export default defineConfig({
   title: "赵龙杰's Portfolio",

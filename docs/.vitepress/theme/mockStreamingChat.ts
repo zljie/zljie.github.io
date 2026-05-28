@@ -14,7 +14,7 @@ export function mockStreamingChat() {
     name: 'vitepress-plugin-mock-streaming-chat',
 
     configureServer(server: any) {
-      server.middlewares.use('/chat', async (req: any, res: any) => {
+      server.middlewares.use('/api/chat', async (req: any, res: any) => {
         if (req.method !== 'POST') {
           res.statusCode = 405
           res.end('Method Not Allowed')
