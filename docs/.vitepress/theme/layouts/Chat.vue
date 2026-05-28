@@ -28,7 +28,7 @@
         <div class="messages" ref="messagesRef">
           <Welcome v-if="messages.length === 0" :user="welcomeUser" />
           <template v-for="msg in messages" :key="msg.id">
-            <div class="message-row" :class="msg.role">
+            <div class="message-row" :class="msg.role" :data-msg-id="msg.id">
               <img
                 v-if="msg.role === 'assistant'"
                 class="avatar"
@@ -44,6 +44,9 @@
                 v-else
                 :content="msg.content"
                 role="assistant"
+                :streaming="!msg.done"
+                :think-content="msg.thinkContent"
+                :think-done="msg.thinkDone"
               />
               <img
                 v-if="msg.role === 'user'"
@@ -53,16 +56,6 @@
               />
             </div>
           </template>
-          <div v-if="loading" class="message-row assistant">
-            <img
-              class="avatar"
-              src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
-              alt="AI"
-            />
-            <div class="typing-indicator">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
         </div>
 
         <div class="chat-input-area">
@@ -87,8 +80,8 @@ import { useChat, type ChatMessage } from './useChat'
 import MarkdownBubble from './MarkdownBubble.vue'
 
 const config = computed(() => {
-  if (typeof window === 'undefined') return {}
-  return window.__CHAT_CONFIG__ || {}
+  if (typeof window === 'undefined') return { title: '', subtitle: '' }
+  return window.__CHAT_CONFIG__ || { title: '', subtitle: '' }
 })
 
 const { messages, inputValue, loading, messagesRef, sendMessage } = useChat()

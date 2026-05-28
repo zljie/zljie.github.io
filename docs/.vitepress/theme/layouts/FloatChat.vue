@@ -25,7 +25,7 @@
         <div class="float-messages" ref="messagesRef">
           <Welcome v-if="messages.length === 0" :user="welcomeUser" />
           <template v-for="msg in messages" :key="msg.id">
-            <div class="float-message-row" :class="msg.role">
+            <div class="float-message-row" :class="msg.role" :data-msg-id="msg.id">
               <img
                 v-if="msg.role === 'assistant'"
                 class="float-avatar-sm"
@@ -41,6 +41,9 @@
                 v-else
                 :content="msg.content"
                 role="assistant"
+                :streaming="!msg.done"
+                :think-content="msg.thinkContent"
+                :think-done="msg.thinkDone"
               />
               <img
                 v-if="msg.role === 'user'"
@@ -50,16 +53,6 @@
               />
             </div>
           </template>
-          <div v-if="loading" class="float-message-row assistant">
-            <img
-              class="float-avatar-sm"
-              src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
-              alt="AI"
-            />
-            <div class="float-typing">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
         </div>
 
         <div class="float-input">
@@ -98,14 +91,14 @@ import { useChat } from './useChat'
 import MarkdownBubble from './MarkdownBubble.vue'
 
 const config = computed(() => {
-  if (typeof window === 'undefined') return {}
-  return window.__CHAT_CONFIG__ || {}
+  if (typeof window === 'undefined') return { title: '', subtitle: '' }
+  return window.__CHAT_CONFIG__ || { title: '', subtitle: '' }
 })
 
 const isOpen = ref(false)
 const unread = ref(0)
 const welcomeUser = ref({ name: 'Guest' })
-const chatStyle = ref({ bottom: '100px', right: '24px' })
+const chatStyle = ref<Record<string, string>>({ bottom: '100px', right: '24px' })
 
 let dragOffsetX = 0
 let dragOffsetY = 0

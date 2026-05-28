@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { mockStreamingChat } from './theme/mockStreamingChat'
 
-const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'http://localhost:8000/chat'
+const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || '/chat'
 
 export default defineConfig({
   title: "赵龙杰's Portfolio",
@@ -70,6 +71,7 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [mockStreamingChat()],
     ssr: {
       noExternal: ['ant-design-x-vue', 'ant-design-vue'],
     },

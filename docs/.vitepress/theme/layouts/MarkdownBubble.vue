@@ -1,7 +1,37 @@
 <template>
   <div class="md-bubble" :class="[`md-bubble--${role}`, { 'md-bubble--streaming': streaming }]">
+
+    <!-- Think Section (only for assistant) -->
+    <div v-if="role === 'assistant'" class="md-bubble__think">
+      <button
+        class="think-toggle"
+        :class="{ 'think-toggle--open': thinkOpen }"
+        @click="thinkOpen = !thinkOpen"
+        :aria-expanded="thinkOpen"
+      >
+        <span class="think-toggle__icon">
+          <svg v-if="!thinkOpen" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg v-else width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="think-toggle__label">Thinking Process</span>
+        <span v-if="!thinkDone" class="think-toggle__dots">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
+
+      <div v-show="thinkOpen" class="think-content">
+        <pre class="think-text">{{ thinkContent }}</pre><span v-if="streaming && !thinkDone" class="think-cursor" />
+      </div>
+    </div>
+
+    <!-- Main Content -->
     <div class="md-bubble__content" v-html="renderedContent" />
-    <span v-if="streaming" class="md-bubble__cursor" />
+    <span v-if="streaming && role === 'assistant'" class="md-bubble__cursor" />
+
   </div>
 </template>
 
@@ -13,15 +43,24 @@ const props = defineProps<{
   content: string
   role: 'user' | 'assistant'
   streaming?: boolean
+  thinkContent?: string
+  thinkDone?: boolean
 }>()
 
+const thinkOpen = ref(false)
 const raw = ref(props.content)
+const rawThink = ref(props.thinkContent || '')
 
+// Keep content in sync during streaming
 watch(
   () => props.content,
-  (val) => {
-    raw.value = val
-  },
+  (val) => { raw.value = val },
+)
+
+// Keep think content in sync during streaming
+watch(
+  () => props.thinkContent,
+  (val) => { rawThink.value = val || '' },
 )
 
 marked.setOptions({
@@ -36,6 +75,7 @@ const renderedContent = computed(() => {
 </script>
 
 <style scoped>
+/* ===== Base ===== */
 .md-bubble {
   position: relative;
   max-width: 100%;
@@ -54,7 +94,99 @@ const renderedContent = computed(() => {
   margin-bottom: 0;
 }
 
-/* Inline code */
+/* ===== Think Section ===== */
+.md-bubble__think {
+  margin-bottom: 8px;
+}
+
+.think-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.think-toggle:hover {
+  color: var(--vp-c-brand-2);
+}
+
+.think-toggle__icon {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.think-toggle--open .think-toggle__icon {
+  transform: rotate(0deg);
+}
+
+.think-toggle__dots {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.think-toggle__dots span {
+  width: 4px;
+  height: 4px;
+  background: var(--vp-c-brand-1);
+  border-radius: 50%;
+  animation: think-bounce 1.2s infinite;
+  opacity: 0.6;
+}
+
+.think-toggle__dots span:nth-child(2) { animation-delay: 0.2s; }
+.think-toggle__dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes think-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.think-content {
+  margin-top: 6px;
+  padding: 10px 14px;
+  background: var(--vp-c-bg-soft);
+  border-left: 3px solid var(--vp-c-brand-1);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.think-text {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--vp-c-text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.think-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--vp-c-brand-1);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-end infinite;
+}
+
+/* ===== Inline code ===== */
 .md-bubble__content :deep(code) {
   font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
   font-size: 0.875em;
@@ -73,7 +205,7 @@ const renderedContent = computed(() => {
   color: inherit;
 }
 
-/* Code blocks */
+/* ===== Code blocks ===== */
 .md-bubble__content :deep(pre) {
   position: relative;
   margin: 0.6em 0;
@@ -101,7 +233,7 @@ const renderedContent = computed(() => {
   color: inherit;
 }
 
-/* Headings */
+/* ===== Headings ===== */
 .md-bubble__content :deep(h1),
 .md-bubble__content :deep(h2),
 .md-bubble__content :deep(h3),
@@ -115,7 +247,7 @@ const renderedContent = computed(() => {
 .md-bubble__content :deep(h3) { font-size: 1em; margin: 0.5em 0 0.3em; }
 .md-bubble__content :deep(h4) { font-size: 0.95em; margin: 0.4em 0 0.3em; }
 
-/* Paragraphs & lists */
+/* ===== Paragraphs & lists ===== */
 .md-bubble__content :deep(p) {
   margin: 0.4em 0;
 }
@@ -135,7 +267,7 @@ const renderedContent = computed(() => {
   margin: 0.1em 0;
 }
 
-/* Blockquotes */
+/* ===== Blockquotes ===== */
 .md-bubble__content :deep(blockquote) {
   margin: 0.5em 0;
   padding: 0.4em 0.8em;
@@ -156,7 +288,7 @@ const renderedContent = computed(() => {
   margin: 0;
 }
 
-/* Links */
+/* ===== Links ===== */
 .md-bubble__content :deep(a) {
   color: var(--vp-c-brand-1);
   text-decoration: none;
@@ -168,7 +300,7 @@ const renderedContent = computed(() => {
   border-bottom-color: var(--vp-c-brand-1);
 }
 
-/* Tables */
+/* ===== Tables ===== */
 .md-bubble__content :deep(table) {
   width: 100%;
   border-collapse: collapse;
@@ -188,21 +320,21 @@ const renderedContent = computed(() => {
   background: var(--vp-c-bg-soft);
 }
 
-/* Horizontal rule */
+/* ===== Horizontal rule ===== */
 .md-bubble__content :deep(hr) {
   border: none;
   border-top: 1px solid var(--vp-c-divider);
   margin: 0.8em 0;
 }
 
-/* Images */
+/* ===== Images ===== */
 .md-bubble__content :deep(img) {
   max-width: 100%;
   border-radius: 6px;
   margin: 0.4em 0;
 }
 
-/* Streaming cursor */
+/* ===== Streaming cursor ===== */
 .md-bubble__cursor {
   display: inline-block;
   width: 2px;

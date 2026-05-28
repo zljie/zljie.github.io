@@ -38,7 +38,7 @@ After the frontmatter, add the post to `docs/.vitepress/config.mts` inside `them
 { text: '<显示名称>', link: '/blog/<文件名前缀>' }
 ```
 
-- The link must match the URL that `import.meta.glob('docs/blog/*.md')` generates from the filename
+- The link must match the URL that `import.meta.glob('./docs/blog/*.md')` generates from the filename
 - Filename pattern: `docs/blog/<任意名称>.md` → URL is `/blog/<任意名称>`
 
 ## Step 3 — Images (If Any)
