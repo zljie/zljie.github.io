@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      CHAT_ENDPOINT: https://od-agent-production.up.railway.app/chat
+      CHAT_ENDPOINT: https://od-agent-production-ae5a.up.railway.app/chat
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
 
       - name: Build
         env:
-          CHAT_ENDPOINT: https://od-agent-production.up.railway.app/chat
+          CHAT_ENDPOINT: https://od-agent-production-ae5a.up.railway.app/chat
         run: pnpm docs:build
 
       - name: Upload artifact
