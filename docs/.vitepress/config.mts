@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 
-const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'http://localhost:8000/chat'
+const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'https://od-agent-production-ae5a.up.railway.app/chat'
 
 export default defineConfig({
   title: "赵龙杰's Portfolio",

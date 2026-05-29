@@ -1,4 +1,4 @@
-import { ref, nextTick } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 
 declare global {
   interface Window {
@@ -108,7 +108,7 @@ function parseEventLines(lines: string[]): Chunk[] {
     }
   }
 
-  if (!eventType) return []
+  if (!eventType) eventType = 'message'  // no event: line → default "message" event
   if (dataLines.length === 0) return []
 
   const out: Chunk[] = []
@@ -145,12 +145,23 @@ function getEndpoint(): string {
   )
 }
 
-export function useChat() {
-  const messages = ref<ChatMessage[]>([])
+export function useChat(initialMessages?: ChatMessage[]) {
+  const messages = ref<ChatMessage[]>(initialMessages ? [...initialMessages] : [])
   const inputValue = ref('')
   const loading = ref(false)
   const messagesRef = ref<HTMLElement>()
-  const messageIdCounter = ref(0)
+  const messageIdCounter = ref(initialMessages?.length ?? 0)
+
+  function setMessages(msgs: ChatMessage[]) {
+    messages.value = msgs.map((m) => ({ ...m }))
+    messageIdCounter.value = msgs.length
+    nextTick(() => scrollToBottom())
+  }
+
+  function clearMessages() {
+    messages.value = []
+    messageIdCounter.value = 0
+  }
 
   function scrollToBottom() {
     nextTick(() => {
@@ -228,7 +239,7 @@ export function useChat() {
    * in-place as chunks arrive. Supports both think mode and content streaming.
    */
   async function sendMessageStreaming(text: string): Promise<void> {
-    const assistantMsg: ChatMessage = {
+    const assistantMsg = reactive<ChatMessage>({
       id: ++messageIdCounter.value,
       role: 'assistant',
       content: '',
@@ -236,7 +247,7 @@ export function useChat() {
       thinkDone: false,
       done: false,
       toolCalls: [],
-    }
+    })
     messages.value.push(assistantMsg)
     scrollToMessage(assistantMsg.id)
 
@@ -275,7 +286,8 @@ export function useChat() {
         buffer = parts.pop() ?? '' // carry over incomplete trailing chunk
 
         for (const eventBlock of parts) {
-          const chunks = parseSSE(eventBlock + '\n\n')
+          if (!eventBlock.trim()) continue
+          const chunks = parseSSE(eventBlock)
           for (const chunk of chunks) {
             if (chunk.error) {
               assistantMsg.content = `Error: ${chunk.error}`
@@ -377,5 +389,7 @@ export function useChat() {
     messagesRef,
     sendMessage,
     scrollToBottom,
+    setMessages,
+    clearMessages,
   }
 }
