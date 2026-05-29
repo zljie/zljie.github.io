@@ -47,6 +47,7 @@
                 :streaming="!msg.done"
                 :think-content="msg.thinkContent"
                 :think-done="msg.thinkDone"
+                :tool-calls="msg.toolCalls"
               />
               <img
                 v-if="msg.role === 'user'"
@@ -113,6 +114,7 @@ function createConversation() {
 
 async function handleSendMessage() {
   const text = inputValue.value.trim()
+  if (!text) return
   await sendMessage()
   const conv = conversations.value.find((c) => c.id === activeConvId.value)
   if (conv && text) {

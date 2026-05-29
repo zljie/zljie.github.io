@@ -22,14 +22,120 @@ export interface ChatMessage {
   thinkDone?: boolean
   /** Whether the full message has finished streaming */
   done?: boolean
+  /** Tool calls invoked during this assistant response */
+  toolCalls?: ToolCall[]
 }
 
+export interface ToolCall {
+  id: string
+  type: 'skill' | 'mcp' | 'rag'
+  name: string
+  description?: string
+  input?: any
+  status: 'pending' | 'success' | 'error'
+  output?: any
+  error?: string
+}
+
+/**
+ * SSE parser that properly handles:
+ * - event: message / event: ping lines (lines not starting with "data:")
+ * - data: [DONE] markers
+ * - Multi-chunk JSON bodies split across TCP packets
+ * - Partial lines arriving in different chunks
+ */
 interface Chunk {
   think?: string
   think_done?: boolean
   content?: string
   done?: boolean
   error?: string
+  tool_call?: {
+    type: 'skill' | 'mcp' | 'rag'
+    name: string
+    description?: string
+    input?: any
+    id: string
+  }
+  tool_result?: {
+    id: string
+    name: string
+    status: 'success' | 'error' | 'pending'
+    output?: any
+    error?: string
+  }
+}
+
+function parseSSE(raw: string): Chunk[] {
+  const chunks: Chunk[] = []
+  const curLines: string[] = []
+
+  for (const rawLine of raw.split('\n')) {
+    const line = rawLine.trimEnd()
+    if (line === '') {
+      // Empty line = end of current event
+      if (curLines.length > 0) {
+        const parsed = parseEventLines(curLines)
+        for (const c of parsed) chunks.push(c)
+        curLines.length = 0
+      }
+    } else {
+      curLines.push(line)
+    }
+  }
+  // Flush incomplete trailing event
+  if (curLines.length > 0) {
+    const parsed = parseEventLines(curLines)
+    for (const c of parsed) chunks.push(c)
+  }
+  return chunks
+}
+
+/**
+ * Parse one event's accumulated lines into one or more Chunks.
+ * Handles multiple data: lines within a single event block by emitting
+ * one Chunk per data: line.
+ */
+function parseEventLines(lines: string[]): Chunk[] {
+  let eventType: string | null = null
+  const dataLines: string[] = []
+
+  for (const line of lines) {
+    if (line.startsWith('event:')) {
+      eventType = line.slice(6).trim()
+    } else if (line.startsWith('data:')) {
+      dataLines.push(line.slice(5).trim().replace(/\r$/, ''))
+    }
+  }
+
+  if (!eventType) return []
+  if (dataLines.length === 0) return []
+
+  const out: Chunk[] = []
+  for (const dl of dataLines) {
+    if (dl === '[DONE]') {
+      out.push({ done: true })
+      continue
+    }
+
+    let body: Record<string, any>
+    try {
+      body = JSON.parse(dl)
+    } catch {
+      continue
+    }
+
+    switch (eventType) {
+      case 'think':        out.push({ think: body.content });         break
+      case 'think_done':   out.push({ think_done: true });           break
+      case 'content':      out.push({ content: body.content });       break
+      case 'message':      out.push({ content: body.content });       break
+      case 'tool_call':    out.push({ tool_call: body as any });      break
+      case 'tool_result':  out.push({ tool_result: body as any });    break
+      case 'done':         out.push({ done: true });                  break
+    }
+  }
+  return out
 }
 
 function getEndpoint(): string {
@@ -129,6 +235,7 @@ export function useChat() {
       thinkContent: '',
       thinkDone: false,
       done: false,
+      toolCalls: [],
     }
     messages.value.push(assistantMsg)
     scrollToMessage(assistantMsg.id)
@@ -152,45 +259,74 @@ export function useChat() {
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
+      let buffer = ''
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        const raw = decoder.decode(value, { stream: !done })
-        // SSE format: "data: {...}\n\n"
-        for (const line of raw.split('\n')) {
-          if (!line.startsWith('data: ')) continue
-          const body = line.slice(6)
-          let chunk: Chunk
-          try {
-            chunk = JSON.parse(body)
-          } catch {
-            continue
-          }
+        buffer += decoder.decode(value, { stream: !done })
 
-          if (chunk.error) {
-            assistantMsg.content = `Error: ${chunk.error}`
-            assistantMsg.done = true
-            break
-          }
+        // Normalise line endings so we can split on either \n\n or \r\n\r\n
+        buffer = buffer.replace(/\r\n/g, '\n')
+        // Split on SSE event boundary (\n\n) to isolate complete events
+        // The remaining buffer (after the last \n\n) may contain a partial event — keep it
+        const parts = buffer.split('\n\n')
+        buffer = parts.pop() ?? '' // carry over incomplete trailing chunk
 
-          if (chunk.think !== undefined) {
-            assistantMsg.thinkContent = (assistantMsg.thinkContent || '') + chunk.think
-            scrollToMessage(assistantMsg.id)
-          }
+        for (const eventBlock of parts) {
+          const chunks = parseSSE(eventBlock + '\n\n')
+          for (const chunk of chunks) {
+            if (chunk.error) {
+              assistantMsg.content = `Error: ${chunk.error}`
+              assistantMsg.done = true
+              break
+            }
 
-          if (chunk.think_done) {
-            assistantMsg.thinkDone = true
-          }
+            if (chunk.think !== undefined) {
+              assistantMsg.thinkContent = (assistantMsg.thinkContent || '') + chunk.think
+              scrollToMessage(assistantMsg.id)
+            }
 
-          if (chunk.content !== undefined) {
-            assistantMsg.content = (assistantMsg.content || '') + chunk.content
-            scrollToMessage(assistantMsg.id)
-          }
+            if (chunk.think_done) {
+              assistantMsg.thinkDone = true
+            }
 
-          if (chunk.done) {
-            assistantMsg.done = true
+            if (chunk.content !== undefined) {
+              assistantMsg.content = (assistantMsg.content || '') + chunk.content
+              scrollToMessage(assistantMsg.id)
+            }
+
+            if (chunk.tool_call !== undefined) {
+              const tc = chunk.tool_call
+              if (!assistantMsg.toolCalls) assistantMsg.toolCalls = []
+              assistantMsg.toolCalls.push({
+                id: tc.id,
+                type: tc.type,
+                name: tc.name,
+                description: tc.description,
+                input: tc.input,
+                status: 'pending',
+              })
+              scrollToMessage(assistantMsg.id)
+            }
+
+            if (chunk.tool_result !== undefined) {
+              const tr = chunk.tool_result
+              if (assistantMsg.toolCalls) {
+                const call = assistantMsg.toolCalls.find((c) => c.id === tr.id)
+                if (call) {
+                  call.status = tr.status
+                  call.output = tr.output
+                  call.error = tr.error
+                }
+              }
+              scrollToMessage(assistantMsg.id)
+            }
+
+            if (chunk.done) {
+              assistantMsg.done = true
+            }
           }
         }
       }

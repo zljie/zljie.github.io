@@ -28,6 +28,68 @@
       </div>
     </div>
 
+    <!-- Tools Section (only for assistant, only when tools were called) -->
+    <div v-if="role === 'assistant' && toolCalls && toolCalls.length > 0" class="md-bubble__tools">
+      <button
+        class="think-toggle"
+        :class="{ 'think-toggle--open': toolsOpen }"
+        @click="toolsOpen = !toolsOpen"
+        :aria-expanded="toolsOpen"
+      >
+        <span class="think-toggle__icon">
+          <svg v-if="!toolsOpen" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg v-else width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="think-toggle__label">Using Tools</span>
+        <span class="tool-count">{{ toolCalls.length }}</span>
+        <span v-if="hasPendingTool" class="think-toggle__dots">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
+
+      <div v-show="toolsOpen" class="tools-content">
+        <div
+          v-for="tool in toolCalls"
+          :key="tool.id"
+          class="tool-card"
+          :class="`tool-card--${tool.status}`"
+        >
+          <div class="tool-card__header">
+            <span class="tool-type-badge" :class="`tool-type-badge--${tool.type}`">
+              {{ tool.type.toUpperCase() }}
+            </span>
+            <span class="tool-name">{{ tool.name }}</span>
+            <span class="tool-status" :class="`tool-status--${tool.status}`">
+              {{ tool.status }}
+            </span>
+          </div>
+
+          <div v-if="tool.input" class="tool-card__section">
+            <span class="tool-card__label">Input</span>
+            <pre class="tool-card__code">{{ formatJson(tool.input) }}</pre>
+          </div>
+
+          <div v-if="tool.status === 'pending'" class="tool-card__section">
+            <span class="tool-card__pending-text">Waiting for result...</span>
+          </div>
+
+          <div v-if="tool.status === 'success' && tool.output !== undefined" class="tool-card__section">
+            <span class="tool-card__label">Output</span>
+            <pre class="tool-card__code">{{ formatJson(tool.output) }}</pre>
+          </div>
+
+          <div v-if="tool.status === 'error' && tool.error" class="tool-card__section">
+            <span class="tool-card__label">Error</span>
+            <pre class="tool-card__code tool-card__code--error">{{ tool.error }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <div class="md-bubble__content" v-html="renderedContent" />
     <span v-if="streaming && role === 'assistant'" class="md-bubble__cursor" />
@@ -38,6 +100,7 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
 import { marked } from 'marked'
+import type { ToolCall } from './useChat'
 
 const props = defineProps<{
   content: string
@@ -45,11 +108,24 @@ const props = defineProps<{
   streaming?: boolean
   thinkContent?: string
   thinkDone?: boolean
+  toolCalls?: ToolCall[]
 }>()
 
 const thinkOpen = ref(false)
+const toolsOpen = ref(true)
 const raw = ref(props.content)
 const rawThink = ref(props.thinkContent || '')
+
+const hasPendingTool = computed(() =>
+  (props.toolCalls ?? []).some((t) => t.status === 'pending')
+)
+
+function formatJson(val: any): string {
+  if (typeof val === 'string') {
+    try { return JSON.stringify(JSON.parse(val), null, 2) } catch { return val }
+  }
+  return JSON.stringify(val, null, 2)
+}
 
 // Keep content in sync during streaming
 watch(
@@ -348,5 +424,133 @@ const renderedContent = computed(() => {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* ===== Tools Section ===== */
+.md-bubble__tools {
+  margin-bottom: 8px;
+}
+
+.tool-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.tools-content {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-card {
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+  overflow: hidden;
+  font-size: 0.82rem;
+}
+
+.tool-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.tool-type-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.tool-type-badge--skill {
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+}
+
+.tool-type-badge--mcp {
+  background: rgba(183, 148, 255, 0.15);
+  color: #b794f4;
+}
+
+.tool-type-badge--rag {
+  background: rgba(121, 192, 128, 0.15);
+  color: #79c061;
+}
+
+.tool-name {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  flex: 1;
+}
+
+.tool-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tool-status--pending { color: var(--vp-c-text-3); }
+.tool-status--success { color: #3fb950; }
+.tool-status--error { color: #f85149; }
+
+.tool-card--success { border-color: rgba(63, 185, 80, 0.3); }
+.tool-card--error { border-color: rgba(248, 81, 73, 0.3); }
+
+.tool-card__section {
+  padding: 6px 12px;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.tool-card__label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--vp-c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.tool-card__code {
+  margin: 0;
+  padding: 6px 8px;
+  background: var(--vp-c-bg);
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--vp-c-text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tool-card__code--error {
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.06);
+}
+
+.tool-card__pending-text {
+  color: var(--vp-c-text-3);
+  font-style: italic;
+  font-size: 0.78rem;
 }
 </style>

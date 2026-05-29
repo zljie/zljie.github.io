@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitepress'
-import { mockStreamingChat } from './theme/mockStreamingChat'
 
-const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || '/api/chat'
+const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'http://localhost:8000/chat'
 
 export default defineConfig({
   title: "赵龙杰's Portfolio",
@@ -55,6 +54,7 @@ export default defineConfig({
           { text: 'Salesforce 迁移', link: '/blog/salesforce-migration' },
           { text: '本体驱动 Agent 时代', link: '/blog/ontology-system-insight' },
           { text: 'Chatbot 输入理解与预处理工程', link: '/blog/2026-05-28_Chatbot输入理解与预处理工程-8层链路架构设计' },
+          { text: 'VitePress × ant-design-x-vue 踩坑全记录', link: '/blog/2026-05-29_VitePress嵌入ant-design-x-vue悬浮聊天的踩坑全记录' },
         ],
       },
     ],
@@ -71,7 +71,6 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [mockStreamingChat()],
     ssr: {
       noExternal: ['ant-design-x-vue', 'ant-design-vue'],
     },
