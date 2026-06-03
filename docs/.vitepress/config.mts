@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+import { mockStreamingChat } from './theme/mockStreamingChat'
+import { mock5StepChat } from './theme/mock5StepChat'
 
 const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'https://od-agent-production-ae5a.up.railway.app/chat'
 
@@ -81,6 +83,11 @@ export default defineConfig({
         '../_util/type': '../_util/type.js',
       },
     },
+    plugins: [
+      // Only register in dev mode — SSR build should not include these
+      !process.env.VITEPRESS_BUILD && mockStreamingChat(),
+      !process.env.VITEPRESS_BUILD && mock5StepChat(),
+    ].filter(Boolean),
   },
 
   markdown: {

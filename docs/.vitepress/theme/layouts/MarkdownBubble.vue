@@ -28,6 +28,30 @@
       </div>
     </div>
 
+    <!-- 5-Step Execution Card -->
+    <AgentExecutionCard
+      v-if="role === 'assistant' && stepLifecycle && stepLifecycle.length > 0"
+      :steps="stepLifecycle"
+      class="md-bubble__steps"
+    />
+
+    <!-- HITL Interaction Card -->
+    <HumanInTheLoopCard
+      v-if="role === 'assistant' && (interaction || confirmRequest || slotFillRequest)"
+      :interaction="interaction"
+      :confirm="confirmRequest"
+      :slot-fill="slotFillRequest"
+      class="md-bubble__hitl"
+      @select="(opt, params) => $emit('hitl-select', opt, params)"
+      @confirm="(id, params) => $emit('hitl-confirm', id, params)"
+      @cancel="(id) => $emit('hitl-cancel', id)"
+      @rating="(r) => $emit('hitl-rating', r)"
+      @input="(v) => $emit('hitl-input', v)"
+      @dismiss="$emit('hitl-dismiss')"
+      @slot-fill="(id, values) => $emit('hitl-slot-fill', id, values)"
+      @slot-cancel="(id) => $emit('hitl-slot-cancel', id)"
+    />
+
     <!-- Tools Section (only for assistant, only when tools were called) -->
     <div v-if="role === 'assistant' && toolCalls && toolCalls.length > 0" class="md-bubble__tools">
       <button
@@ -100,7 +124,10 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
 import { marked } from 'marked'
-import type { ToolCall } from './useChat'
+import type { ToolCall, StepInfo } from './useChat'
+import AgentExecutionCard from './AgentExecutionCard.vue'
+import HumanInTheLoopCard from './HumanInTheLoopCard.vue'
+import type { InteractionOption } from './useChat'
 
 const props = defineProps<{
   content: string
@@ -109,6 +136,10 @@ const props = defineProps<{
   thinkContent?: string
   thinkDone?: boolean
   toolCalls?: ToolCall[]
+  stepLifecycle?: StepInfo[]
+  interaction?: import('./useChat').InteractionChoice
+  confirmRequest?: import('./useChat').ConfirmRequest
+  slotFillRequest?: import('./useChat').SlotFillRequest
 }>()
 
 const thinkOpen = ref(false)
@@ -126,6 +157,17 @@ function formatJson(val: any): string {
   }
   return JSON.stringify(val, null, 2)
 }
+
+defineEmits<{
+  'hitl-select': [option: InteractionOption, params?: Record<string, any>]
+  'hitl-confirm': [id: string, params?: Record<string, any>]
+  'hitl-cancel': [id: string]
+  'hitl-rating': [rating: number]
+  'hitl-input': [value: string]
+  'hitl-dismiss': []
+  'hitl-slot-fill': [id: string, values: Record<string, any>]
+  'hitl-slot-cancel': [id: string]
+}>()
 
 // Keep content in sync during streaming
 watch(
@@ -429,6 +471,16 @@ const renderedContent = computed(() => {
 /* ===== Tools Section ===== */
 .md-bubble__tools {
   margin-bottom: 8px;
+}
+
+/* ===== 5-Step Execution Section ===== */
+.md-bubble__steps {
+  margin-bottom: 8px;
+}
+
+/* ===== HITL Interaction Section ===== */
+.md-bubble__hitl {
+  margin-top: 8px;
 }
 
 .tool-count {

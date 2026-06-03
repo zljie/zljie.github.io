@@ -44,6 +44,9 @@
                 :streaming="!msg.done"
                 :think-content="msg.thinkContent"
                 :think-done="msg.thinkDone"
+                :step-lifecycle="msg.stepLifecycle"
+                :interaction="msg.interaction"
+                :confirm-request="msg.confirmRequest"
               />
               <img
                 v-if="msg.role === 'user'"
