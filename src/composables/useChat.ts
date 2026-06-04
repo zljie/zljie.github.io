@@ -327,6 +327,8 @@ export interface SlotFillRequest {
   slots: SlotDefinition[]
   /** 提交后继续执行的 action */
   continueAction: { id: string; label: string }
+  /** 遗留格式：旧版使用 action 字段 */
+  action?: { id: string; label: string }
   /** 取消操作 */
   cancelAction: { id: string; label: string }
   /** 风险等级 */

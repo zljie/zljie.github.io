@@ -2,9 +2,9 @@
 
 # Agent Chatbot UI - Development Script
 # Usage:
-#   ./dev.sh                     # Uses default /chat
-#   ./dev.sh --endpoint http://localhost:8000/chat
-#   VITE_CHAT_ENDPOINT=http://localhost:8000/chat ./dev.sh
+#   ./run.sh                     # Uses default /chat
+#   ./run.sh --endpoint http://localhost:8000/chat
+#   VITE_CHAT_ENDPOINT=http://localhost:8000/chat ./run.sh
 
 set -e
 
@@ -22,20 +22,20 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --help|-h)
-      echo "Usage: ./dev.sh [--endpoint <url>]"
+      echo "Usage: ./run.sh [--endpoint <url>]"
       echo "  --endpoint, -e  Set the Agent backend endpoint (default: /chat)"
       echo "  Also respects VITE_CHAT_ENDPOINT env var."
       exit 0
       ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: ./dev.sh [--endpoint <url>]"
+      echo "Usage: ./run.sh [--endpoint <url>]"
       exit 1
       ;;
   esac
 done
 
-echo "🚀 Starting Agent Chatbot UI development server..."
+echo "🚀 Starting Agent Chatbot UI server..."
 echo "📡 Chat endpoint: $ENDPOINT"
 
 # Check if pnpm is installed
@@ -51,5 +51,5 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Start dev server with the configured endpoint
-echo "🔥 Dev server starting at http://localhost:5174"
+echo "🔥 Server starting at http://localhost:5174"
 VITE_CHAT_ENDPOINT="$ENDPOINT" pnpm dev
