@@ -170,6 +170,30 @@
         {{ slotFill.message }}
       </div>
 
+      <!-- Alternatives options (for intent clarification) -->
+      <div v-if="slotFill.alternatives && slotFill.alternatives.length > 0" class="slot-fill-alternatives">
+        <div class="alternatives-label">您是否想要：</div>
+        <div class="alternatives-list">
+          <button
+            v-for="(alt, idx) in slotFill.alternatives"
+            :key="idx"
+            class="alternative-option"
+            :disabled="isSubmitting || loading"
+            @click="selectAlternative(alt)"
+          >
+            <span class="alternative-option__icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </span>
+            <span class="alternative-option__label">{{ alt.label }}</span>
+          </button>
+        </div>
+        <div class="alternatives-divider">
+          <span>或者填写以下信息继续：</span>
+        </div>
+      </div>
+
       <!-- Slot fields -->
       <div class="slot-fill-form">
         <div
@@ -441,6 +465,22 @@ function cancelSlotFill() {
   if (isSubmitting.value || props.loading) return
   isSubmitting.value = true
   emit('slot-cancel', props.slotFill.id)
+}
+
+/**
+ * Handle alternative option selection
+ * Emits 'select' event with the selected alternative value
+ */
+function selectAlternative(alt: { label: string; value: string }) {
+  if (isSubmitting.value || props.loading) return
+  isSubmitting.value = true
+  // Create a synthetic InteractionOption-like object for the alternative
+  const option: InteractionOption = {
+    id: alt.value,
+    label: alt.label,
+    action: 'confirm',
+  }
+  emit('select', option)
 }
 
 function setSlotRef(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null, slotId: string) {
@@ -1029,6 +1069,62 @@ function iconComponent(iconName?: string) {
   background: var(--vp-c-bg);
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
+}
+
+.slot-fill-alternatives {
+  margin-bottom: 8px;
+}
+
+.alternatives-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  margin-bottom: 6px;
+}
+
+.alternatives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alternative-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--vp-c-text-1);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.alternative-option:hover:not(:disabled) {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+}
+
+.alternative-option__icon {
+  color: var(--vp-c-brand-1);
+  display: flex;
+  align-items: center;
+}
+
+.alternative-option__label {
+  flex: 1;
+}
+
+.alternatives-divider {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--vp-c-divider);
+  font-size: 0.7rem;
+  color: var(--vp-c-text-3);
 }
 
 .slot-fill-form {

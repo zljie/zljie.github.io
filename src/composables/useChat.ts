@@ -331,6 +331,8 @@ export interface SlotFillRequest {
   cancelAction: { id: string; label: string }
   /** 风险等级 */
   riskLevel: 'low' | 'medium' | 'high'
+  /** 建议的可选意图选项（用于意图澄清场景） */
+  alternatives?: Array<{ label: string; value: string }>
 }
 
 /**
@@ -381,6 +383,8 @@ export interface ChatMessage {
   id: number
   role: 'user' | 'assistant'
   content: string
+  /** 运行模式：five_step = 本体业务域模式，general_chat = 普通聊天模式 */
+  mode?: 'five_step' | 'general_chat'
   /** Markdown-rendered HTML for the assistant message */
   rendered?: string
   /** Raw think/reasoning text being streamed */
@@ -417,6 +421,7 @@ interface Chunk {
   content?: string
   done?: boolean
   error?: string
+  mode?: 'five_step' | 'general_chat'
   task_id?: string
   run_id?: string
   conversation_id?: string
@@ -431,7 +436,7 @@ interface Chunk {
   }
   interaction?: InteractionChoice
   confirm_request?: ConfirmRequest
-  slot_fill?: SlotFillRequest
+  slot_fill?: SlotFillRequest & { alternatives?: Array<{ label: string; value: string }> }
   risk_confirm_request?: ConfirmRequest
   approval_request?: ApprovalRequest
   tool_call?: {
@@ -519,6 +524,8 @@ function parseEventLines(lines: string[]): Chunk[] {
     if (conversationId) baseChunk.conversation_id = conversationId
 
     switch (eventType) {
+      case 'stream_start':
+      case 'stream.start':    out.push({ ...baseChunk, mode: body.mode as any }); break
       case 'think':        out.push({ ...baseChunk, think: body.content }); break
       case 'think_done':   out.push({ ...baseChunk, think_done: true }); break
       case 'content':      out.push({ ...baseChunk, content: body.content }); break
@@ -622,7 +629,6 @@ export function useChat(initialMessages?: ChatMessage[]) {
           .map((m) => m.content),
         session_id: currentSessionId.value,
         stream: false,
-        enable_five_step: true,
       }
 
       chatLogger.logBackendRequest(requestBody, endpoint)
@@ -663,6 +669,7 @@ export function useChat(initialMessages?: ChatMessage[]) {
       id: ++messageIdCounter.value,
       role: 'assistant',
       content: '',
+      mode: undefined,
       thinkContent: '',
       thinkDone: false,
       done: false,
@@ -690,7 +697,6 @@ export function useChat(initialMessages?: ChatMessage[]) {
         message: text,
         session_id: currentSessionId.value,
         stream: true,
-        enable_five_step: true,
       }
 
       chatLogger.logBackendRequest(requestBody, endpoint)
@@ -741,6 +747,11 @@ export function useChat(initialMessages?: ChatMessage[]) {
               capturedConversationId = chunk.conversation_id
             }
 
+            // 解析运行模式：five_step = 本体业务域，general_chat = 普通聊天
+            if (chunk.mode) {
+              assistantMsg.mode = chunk.mode
+            }
+
             if (chunk.error) {
               assistantMsg.content = `Error: ${chunk.error}`
               assistantMsg.done = true
@@ -768,9 +779,15 @@ export function useChat(initialMessages?: ChatMessage[]) {
             }
 
             if (chunk.content !== undefined) {
-              const stepName = getCurrentStepName()
-              const prefix = stepName ? `\n\n**【${stepName}】**\n` : '\n\n'
-              assistantMsg.content = (assistantMsg.content || '') + prefix + chunk.content
+              // five_step 模式：每个步骤完成后换行分隔
+              // 其他模式（general_chat 或 undefined）：直接追加，保持流式体验
+              if (assistantMsg.mode === 'five_step') {
+                const stepName = getCurrentStepName()
+                const prefix = stepName ? `\n\n**【${stepName}】**\n` : '\n\n'
+                assistantMsg.content = (assistantMsg.content || '') + prefix + chunk.content
+              } else {
+                assistantMsg.content = (assistantMsg.content || '') + chunk.content
+              }
               scrollToMessage(assistantMsg.id)
             }
 
@@ -803,6 +820,10 @@ export function useChat(initialMessages?: ChatMessage[]) {
 
             if (chunk.step_update !== undefined) {
               const su = chunk.step_update
+              // 五步法模式特征：收到 step_update 事件时自动推断
+              if (!assistantMsg.mode) {
+                assistantMsg.mode = 'five_step'
+              }
               if (!assistantMsg.stepLifecycle) assistantMsg.stepLifecycle = []
               const idx = assistantMsg.stepLifecycle.findIndex((s) => s.step === su.step)
               if (idx >= 0) {
@@ -890,15 +911,19 @@ export function useChat(initialMessages?: ChatMessage[]) {
               }
               assistantMsg.hasPendingHitl = true
 
+              // Handle both `continueAction` (new format) and `action` (legacy format)
+              const continueAction = sf.continueAction || sf.action || { id: 'continue', label: '继续' }
+
               assistantMsg.slotFillRequest = {
                 id: taskId,
                 step: sf.step,
                 title: sf.title,
                 message: sf.message,
                 slots: sf.slots,
-                continueAction: sf.continueAction || { id: 'continue', label: '继续' },
+                continueAction,
                 cancelAction: sf.cancelAction || { id: 'cancel', label: '取消' },
                 riskLevel: sf.riskLevel,
+                alternatives: sf.alternatives,
               }
               scrollToMessage(assistantMsg.id)
             }
@@ -1143,6 +1168,10 @@ export function useChat(initialMessages?: ChatMessage[]) {
 
             if (chunk.step_update !== undefined) {
               const su = chunk.step_update
+              // 五步法模式特征：收到 step_update 事件时自动推断
+              if (!assistantMsg.mode) {
+                assistantMsg.mode = 'five_step'
+              }
               if (!assistantMsg.stepLifecycle) assistantMsg.stepLifecycle = []
               const idx = assistantMsg.stepLifecycle.findIndex((s) => s.step === su.step)
               if (idx >= 0) {

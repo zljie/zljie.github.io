@@ -140,6 +140,7 @@
                 :interaction="msg.interaction"
                 :confirm-request="msg.confirmRequest"
                 :slot-fill-request="msg.slotFillRequest"
+                :mode="msg.mode"
                 @hitl-select="handleHitlSelect"
                 @hitl-confirm="handleHitlConfirm"
                 @hitl-cancel="handleHitlCancel"

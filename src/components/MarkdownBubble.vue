@@ -28,9 +28,9 @@
       </div>
     </div>
 
-    <!-- 5-Step Execution Card -->
+    <!-- 5-Step Execution Card (only show when in five_step mode) -->
     <AgentExecutionCard
-      v-if="role === 'assistant' && stepLifecycle && stepLifecycle.length > 0"
+      v-if="role === 'assistant' && mode === 'five_step' && stepLifecycle && stepLifecycle.length > 0"
       :steps="stepLifecycle"
       class="md-bubble__steps"
     />
@@ -126,6 +126,7 @@
 import { computed, watch, ref } from 'vue'
 import { marked } from 'marked'
 import type { ToolCall, StepInfo, InteractionChoice, InteractionOption, ConfirmRequest, SlotFillRequest } from '../composables/useChat'
+import AgentExecutionCard from './AgentExecutionCard.vue'
 
 const props = defineProps<{
   content: string
@@ -138,6 +139,8 @@ const props = defineProps<{
   interaction?: InteractionChoice
   confirmRequest?: ConfirmRequest
   slotFillRequest?: SlotFillRequest
+  /** 运行模式：five_step = 本体业务域模式，general_chat = 普通聊天模式 */
+  mode?: 'five_step' | 'general_chat'
 }>()
 
 const thinkOpen = ref(false)

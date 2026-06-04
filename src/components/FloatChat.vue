@@ -48,6 +48,7 @@
                 :confirm-request="msg.confirmRequest"
                 :slot-fill-request="msg.slotFillRequest"
                 :tool-calls="msg.toolCalls"
+                :mode="msg.mode"
                 @hitl-select="(opt, params) => handleHitlSelect(opt, params)"
                 @hitl-confirm="(id, params) => handleHitlConfirm(id, params)"
                 @hitl-cancel="handleHitlCancel"
