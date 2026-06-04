@@ -1,7 +1,4 @@
 node_modules/
-.vitepress/dist/
-docs/.vitepress/cache/
 dist/
 *.local
 *.docx
-myfile/

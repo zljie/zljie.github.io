@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Chatbot UI - Examples</title>
+  <style>
+    :root {
+      --vp-c-brand-1: #646cff;
+      --vp-c-brand-2: #535bf2;
+      --vp-c-brand-soft: rgba(100, 108, 255, 0.12);
+      --vp-c-bg: #ffffff;
+      --vp-c-bg-soft: #f6f8fa;
+      --vp-c-bg-alt: #f6f8fa;
+      --vp-c-divider: #d0d7de;
+      --vp-c-text-1: #24292f;
+      --vp-c-text-2: #57606a;
+      --vp-c-text-3: #8b949e;
+      --vp-font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    html[data-theme="dark"] {
+      --vp-c-bg: #0d1117;
+      --vp-c-bg-soft: #161b22;
+      --vp-c-bg-alt: #161b22;
+      --vp-c-divider: #30363d;
+      --vp-c-text-1: #c9d1d9;
+      --vp-c-text-2: #b1bac4;
+      --vp-c-text-3: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--vp-font-family-base);
+      background: var(--vp-c-bg);
+      color: var(--vp-c-text-1);
+      min-height: 100vh;
+    }
+    .demo-nav {
+      display: flex;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--vp-c-bg-soft);
+      border-bottom: 1px solid var(--vp-c-divider);
+    }
+    .demo-nav h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-right: auto;
+    }
+    .demo-nav button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--vp-c-divider);
+      background: var(--vp-c-bg);
+      color: var(--vp-c-text-1);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .demo-nav button:hover {
+      border-color: var(--vp-c-brand-1);
+      background: var(--vp-c-brand-soft);
+    }
+    .demo-nav button.active {
+      background: var(--vp-c-brand-1);
+      color: white;
+      border-color: var(--vp-c-brand-1);
+    }
+    #theme-toggle {
+      padding: 6px 12px;
+      font-size: 1rem;
+    }
+    #theme-toggle span {
+      display: inline-block;
+    }
+    /* Dark theme override */
+    html.dark, html[data-theme="dark"] {
+      --vp-c-brand-1: #7c85ff;
+      --vp-c-brand-2: #939aff;
+      --vp-c-brand-soft: rgba(124, 133, 255, 0.15);
+      --vp-c-bg: #0d1117;
+      --vp-c-bg-soft: #161b22;
+      --vp-c-bg-alt: #161b22;
+      --vp-c-divider: #30363d;
+      --vp-c-text-1: #c9d1d9;
+      --vp-c-text-2: #b1bac4;
+      --vp-c-text-3: #8b949e;
+    }
+    .demo-container {
+      padding: 24px;
+    }
+    .demo-section {
+      display: none;
+    }
+    .demo-section.active {
+      display: block;
+    }
+    .demo-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--vp-c-divider);
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .demo-card {
+      padding: 16px;
+      background: var(--vp-c-bg-soft);
+      border: 1px solid var(--vp-c-divider);
+      border-radius: 12px;
+    }
+    .demo-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .demo-card p {
+      font-size: 0.85rem;
+      color: var(--vp-c-text-2);
+      margin-bottom: 12px;
+    }
+    .demo-card .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--vp-c-brand-soft);
+      color: var(--vp-c-brand-1);
+    }
+  </style>
+</head>
+<body>
+  <nav class="demo-nav">
+    <h1>Agent Chatbot UI</h1>
+    <button class="active" onclick="showDemo('full')">Full Page Chat</button>
+    <button onclick="showDemo('float')">Floating Widget</button>
+    <button onclick="showDemo('components')">Components</button>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light">
+      <span id="theme-icon">🌙</span>
+    </button>
+  </nav>
+
+  <main class="demo-container">
+    <section id="demo-full" class="demo-section active">
+      <h2>Full Page Chat Demo</h2>
+      <p>Import the Chat component for a complete chat interface with sidebar, scenarios, and message history.</p>
+      <div id="chat-app" style="height: 600px; border: 1px solid var(--vp-c-divider); border-radius: 12px; overflow: hidden;"></div>
+    </section>
+
+    <section id="demo-float" class="demo-section">
+      <h2>Floating Widget Demo</h2>
+      <p>Add a floating chat button that expands into a compact chat window.</p>
+      <div id="float-app" style="height: 500px; position: relative; border: 1px solid var(--vp-c-divider); border-radius: 12px;"></div>
+    </section>
+
+    <section id="demo-components" class="demo-section">
+      <h2>Individual Components</h2>
+      <p>Use components individually for more control.</p>
+      
+      <div class="demo-grid">
+        <div class="demo-card">
+          <h3>MarkdownBubble</h3>
+          <p>Render markdown content with syntax highlighting and tool call displays.</p>
+          <span class="tag">Component</span>
+        </div>
+        <div class="demo-card">
+          <h3>AgentExecutionCard</h3>
+          <p>Display the 5-step agent execution lifecycle.</p>
+          <span class="tag">Component</span>
+        </div>
+        <div class="demo-card">
+          <h3>HumanInTheLoopCard</h3>
+          <p>HITL interaction cards: choice, confirm, rating, input, slot-fill.</p>
+          <span class="tag">Component</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createApp } from 'vue'
+    import { Chat, FloatChat } from '../src/index.ts'
+    import '../src/config.ts'
+
+    createApp(Chat).mount('#chat-app')
+    createApp(FloatChat).mount('#float-app')
+  </script>
+
+  <script>
+    // Detect initial theme from prefers-color-scheme
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const initialTheme = prefersDark ? 'dark' : 'light'
+    document.documentElement.setAttribute('data-theme', initialTheme)
+    document.getElementById('theme-icon').textContent = prefersDark ? '☀️' : '🌙'
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme')
+      const next = current === 'dark' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', next)
+      document.getElementById('theme-icon').textContent = next === 'dark' ? '☀️' : '🌙'
+    }
+
+    function showDemo(name) {
+      document.querySelectorAll('.demo-section').forEach(s => s.classList.remove('active'))
+      document.querySelectorAll('.demo-nav button:not(#theme-toggle)').forEach(b => b.classList.remove('active'))
+      document.getElementById('demo-' + name).classList.add('active')
+      event.target.classList.add('active')
+    }
+  </script>
+</body>
+</html>
