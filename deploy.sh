@@ -13,6 +13,33 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+ensure_pnpm() {
+    if ! command -v pnpm >/dev/null 2>&1; then
+        echo -e "${RED}❌ pnpm is not installed.${NC}"
+        echo "Install it first, for example: npm install -g pnpm"
+        exit 1
+    fi
+}
+
+ensure_dependencies() {
+    if [ ! -d "node_modules" ]; then
+        echo ""
+        echo "📦 node_modules not found, installing dependencies..."
+        pnpm install
+    fi
+
+    if ! pnpm exec vue-tsc --version >/dev/null 2>&1; then
+        echo ""
+        echo "📦 vue-tsc is unavailable, reinstalling dependencies..."
+        pnpm install
+    fi
+
+    if ! pnpm exec vue-tsc --version >/dev/null 2>&1; then
+        echo -e "${RED}❌ vue-tsc is still unavailable after install.${NC}"
+        exit 1
+    fi
+}
+
 ensure_npm_auth() {
     if [ -z "$NPM_TOKEN" ]; then
         echo -e "${RED}❌ Missing NPM_TOKEN environment variable.${NC}"
@@ -39,6 +66,8 @@ ensure_npm_auth() {
 echo "📦 Agent Chatbot UI Deploy Script"
 echo "================================="
 
+ensure_pnpm
+ensure_dependencies
 ensure_npm_auth
 
 # Get current version
@@ -88,6 +117,16 @@ if [ -n "$VERSION_TYPE" ]; then
 fi
 
 echo -e "${GREEN}New version: ${NEW_VERSION}${NC}"
+
+if [ -z "$NEW_VERSION" ]; then
+    echo -e "${RED}❌ Unable to determine new version.${NC}"
+    exit 1
+fi
+
+if [ "$NEW_VERSION" = "$CURRENT_VERSION" ]; then
+    echo -e "${RED}❌ New version must be different from current version.${NC}"
+    exit 1
+fi
 
 # Confirm before proceeding
 read -p "Continue with deployment? (y/N) " -n 1 -r
