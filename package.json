@@ -10,8 +10,9 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
+    "@chatbotui/agent-chatbot-ui": "latest",
     "ant-design-vue": "4",
     "ant-design-x-vue": "^1.6.0",
-    "marked": "^18.0.4"
+    "marked": "^18.0.5"
   }
 }

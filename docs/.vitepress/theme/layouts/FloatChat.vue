@@ -11,7 +11,7 @@
             />
             <div>
               <div class="float-title">{{ config.title || 'AI Assistant' }}</div>
-              <div class="float-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</div>
+              <div class="float-subtitle">{{ config.subtitle || 'Powered by Agent Chatbot UI' }}</div>
             </div>
           </div>
           <button class="float-close" @click="isOpen = false">
@@ -23,7 +23,14 @@
         </div>
 
         <div class="float-messages" ref="messagesRef">
-          <Welcome v-if="messages.length === 0" :user="welcomeUser" />
+          <div v-if="messages.length === 0" class="float-welcome">
+            <img
+              class="float-welcome-avatar"
+              src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
+              alt="AI"
+            />
+            <div class="float-welcome-text">{{ config.title || 'AI Assistant' }}</div>
+          </div>
           <template v-for="msg in messages" :key="msg.id">
             <div class="float-message-row" :class="msg.role" :data-msg-id="msg.id">
               <img
@@ -32,11 +39,12 @@
                 src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
                 alt="AI"
               />
-              <Bubble
+              <div
                 v-if="msg.role === 'user'"
-                :content="msg.content"
-                :role="msg.role"
-              />
+                class="float-user-bubble"
+              >
+                {{ msg.content }}
+              </div>
               <MarkdownBubble
                 v-else
                 :content="msg.content"
@@ -59,14 +67,26 @@
         </div>
 
         <div class="float-input">
-          <Sender
-            :value="inputValue"
-            @update:value="(v: string) => inputValue = v"
-            :disabled="loading"
-            placeholder="Type a message..."
-            @send="sendMessage"
-            @submit="sendMessage"
-          />
+          <div class="float-input-wrapper">
+            <input
+              class="float-chat-input"
+              type="text"
+              v-model="inputValue"
+              :disabled="loading"
+              placeholder="Type a message..."
+              @keydown.enter="sendMessage"
+            />
+            <button
+              class="float-send-btn"
+              :disabled="loading || !inputValue.trim()"
+              @click="sendMessage"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -89,7 +109,6 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue'
-import { Bubble, Sender, Welcome } from 'ant-design-x-vue'
 import { useChat } from './useChat'
 import MarkdownBubble from './MarkdownBubble.vue'
 
@@ -100,7 +119,6 @@ const config = computed(() => {
 
 const isOpen = ref(false)
 const unread = ref(0)
-const welcomeUser = ref({ name: 'Guest' })
 const chatStyle = ref<Record<string, string>>({ bottom: '100px', right: '24px' })
 
 let dragOffsetX = 0
@@ -342,5 +360,91 @@ function stopDrag() {
 .fab-leave-to {
   opacity: 0;
   transform: scale(0.6);
+}
+
+/* ── Welcome ────────────────────────────── */
+.float-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  flex: 1;
+}
+
+.float-welcome-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--vp-c-brand-1);
+}
+
+.float-welcome-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+/* ── User Bubble ────────────────────────── */
+.float-user-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  line-height: 1.4;
+  font-size: 0.85rem;
+}
+
+/* ── Input ──────────────────────────────── */
+.float-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.float-chat-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.float-chat-input:focus {
+  border-color: var(--vp-c-brand-1);
+}
+
+.float-chat-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.float-send-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.float-send-btn:hover:not(:disabled) {
+  background: var(--vp-c-brand-2);
+}
+
+.float-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>

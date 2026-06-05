@@ -2,7 +2,6 @@ import { h } from 'vue'
 import { useData } from 'vitepress'
 import { defineAsyncComponent } from 'vue'
 import DefaultTheme from 'vitepress/theme'
-import * as AntdXComponents from 'ant-design-x-vue'
 import HomeLayout from './layouts/Home.vue'
 import ChatLayout from './layouts/Chat.vue'
 import './styles/custom.css'
@@ -31,11 +30,5 @@ export default {
       inner = h(DefaultTheme.Layout, null, {})
     }
     return [inner, h(FloatChat)]
-  },
-
-  enhanceApp({ app }) {
-    for (const [name, component] of Object.entries(AntdXComponents)) {
-      app.component(name, component as any)
-    }
   },
 }

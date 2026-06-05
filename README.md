@@ -1,13 +1,13 @@
-# Personal Portfolio with VitePress & ant-design-x-vue
+# Personal Portfolio with VitePress & Agent Chatbot UI
 
-A personal CV, blog, and AI chat site built with [VitePress](https://vitepress.dev) and [ant-design-x-vue](https://github.com/wzc520pyfm/ant-design-x-vue).
+A personal CV, blog, and AI chat site built with [VitePress](https://vitepress.dev) and [@chatbotui/agent-chatbot-ui](https://github.com/opendataco/agent-chatbot-ui).
 
 ## Features
 
 - **Home** - Hero section with avatar, bio, and latest blog posts
 - **CV** - Personal resume page with skills, experience, and education
 - **Blog** - Markdown-based blog with VitePress features
-- **AI Chat** - Interactive chat UI powered by ant-design-x-vue (Bubble, Sender, Welcome, Conversation components)
+- **AI Chat** - Interactive chat UI powered by Agent Chatbot UI (full-screen and floating modes)
 
 ## Getting Started
 

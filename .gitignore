@@ -5,3 +5,5 @@ dist/
 *.local
 *.docx
 myfile/
+docs/prd/BeBIOS_Agent_Runtime_v2_FiveStep_Architecture.md
+docs/prd/BeBIOS_Agent_Runtime_v2_Frontend_Architecture.md

@@ -3,7 +3,7 @@
     <div class="chat-header">
       <div class="header-info">
         <span class="header-title">{{ config.title || 'AI Chat' }}</span>
-        <span class="header-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</span>
+        <span class="header-subtitle">{{ config.subtitle || 'Powered by Agent Chatbot UI' }}</span>
       </div>
       <div class="header-actions">
         <button class="log-btn" @click="showLogPanel = !showLogPanel" title="会话日志">
@@ -92,7 +92,7 @@
               alt="AI"
             />
             <div class="welcome-title">{{ config.title || 'AI Assistant' }}</div>
-            <div class="welcome-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</div>
+            <div class="welcome-subtitle">{{ config.subtitle || 'Powered by Agent Chatbot UI' }}</div>
           </div>
           <div class="quick-prompts">
             <div class="quick-prompts-label">Try these</div>
@@ -120,11 +120,12 @@
                 src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
                 alt="AI"
               />
-              <Bubble
+              <div
                 v-if="msg.role === 'user'"
-                :content="msg.content"
-                :role="msg.role"
-              />
+                class="user-bubble"
+              >
+                {{ msg.content }}
+              </div>
               <MarkdownBubble
                 v-else
                 :content="msg.content"
@@ -158,14 +159,26 @@
 
         <!-- Input area -->
         <div class="chat-input-area">
-          <Sender
-            :value="inputValue"
-            @update:value="(v: string) => inputValue = v"
-            :disabled="loading"
-            placeholder="Type a message..."
-            @send="handleSendMessage"
-            @submit="handleSendMessage"
-          />
+          <div class="input-wrapper">
+            <input
+              class="chat-input"
+              type="text"
+              v-model="inputValue"
+              :disabled="loading"
+              placeholder="Type a message..."
+              @keydown.enter="handleSendMessage"
+            />
+            <button
+              class="send-btn"
+              :disabled="loading || !inputValue.trim()"
+              @click="handleSendMessage"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -174,7 +187,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Bubble, Sender } from 'ant-design-x-vue'
 import { useChat, type ChatMessage, type InteractionOption } from './useChat'
 import MarkdownBubble from './MarkdownBubble.vue'
 import { chatLogger } from './chatLogger'
@@ -887,6 +899,70 @@ function clearCurrentSession() {
   padding: 12px 24px 24px;
   border-top: 1px solid var(--vp-c-divider);
   background: var(--vp-c-bg);
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.chat-input:focus {
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 0 0 2px var(--vp-c-brand-soft);
+}
+
+.chat-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--vp-c-brand-2);
+  transform: translateY(-1px);
+}
+
+.send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── User Bubble ────────────────────────── */
+.user-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 /* ── Header Actions ────────────────────── */
