@@ -13,8 +13,33 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+ensure_npm_auth() {
+    if [ -z "$NPM_TOKEN" ]; then
+        echo -e "${RED}❌ Missing NPM_TOKEN environment variable.${NC}"
+        echo "Export it before publishing, for example:"
+        echo '  export NPM_TOKEN="<your-npm-token>"'
+        exit 1
+    fi
+
+    echo ""
+    echo "🔐 Verifying npm authentication..."
+    pnpm release:check
+    npm whoami >/dev/null
+
+    REGISTRY=$(npm config get registry)
+    if [ "$REGISTRY" != "https://registry.npmjs.org/" ]; then
+        echo -e "${RED}❌ Unexpected npm registry: ${REGISTRY}${NC}"
+        echo "Expected: https://registry.npmjs.org/"
+        exit 1
+    fi
+
+    echo -e "${GREEN}✅ npm authentication looks good${NC}"
+}
+
 echo "📦 Agent Chatbot UI Deploy Script"
 echo "================================="
+
+ensure_npm_auth
 
 # Get current version
 CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -113,7 +138,7 @@ git push origin "v${NEW_VERSION}"
 # Step 7: Publish to npm
 echo ""
 echo "📦 Publishing to npm..."
-npm publish --access public
+npm publish
 
 echo ""
 echo -e "${GREEN}✅ Deployment complete!${NC}"
