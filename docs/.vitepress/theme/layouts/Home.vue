@@ -23,7 +23,7 @@
           <p class="hero-role">企业数字化产品专家</p>
           <div class="hero-actions">
             <a href="/cv" class="btn-primary">VIEW MY CV</a>
-            <a href="/chat" class="btn-outline">LET'S TALK</a>
+            <a href="/lets-talk" class="btn-outline">LET'S TALK</a>
           </div>
         </div>
 
@@ -120,7 +120,7 @@
       <div class="cta-inner">
         <h2 class="cta-heading">READY TO BUILD TOGETHER?</h2>
         <p class="cta-sub">Let's create something great.</p>
-        <a href="/chat" class="btn-primary btn-large">LET'S TALK</a>
+        <a href="/lets-talk" class="btn-primary btn-large">LET'S TALK</a>
       </div>
     </section>
   </div>

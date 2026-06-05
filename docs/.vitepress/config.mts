@@ -29,7 +29,7 @@ export default defineConfig({
     [
       'script',
       {},
-      `window.__CHAT_CONFIG__ = { endpoint: '${CHAT_ENDPOINT}' };`,
+      `window.__CHAT_CONFIG__ = ${JSON.stringify({ endpoint: CHAT_ENDPOINT, title: "Let's Talk with 赵龙杰", subtitle: '聊合作机会、产品策略、数字化转型与 AI 落地' })};`,
     ],
   ],
 
@@ -38,6 +38,7 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '简历', link: '/cv' },
       { text: '博客', link: '/blog/' },
+      { text: 'Let’s Talk', link: '/lets-talk' },
       { text: 'AI 对话', link: '/chat' },
     ],
 

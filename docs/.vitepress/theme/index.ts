@@ -1,20 +1,14 @@
-import { h } from 'vue'
+import { h, defineAsyncComponent } from 'vue'
 import { useData } from 'vitepress'
-import { defineAsyncComponent } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import HomeLayout from './layouts/Home.vue'
-import ChatLayout from './layouts/Chat.vue'
 import './styles/custom.css'
 
-const ChatLayout = defineAsyncComponent({
-  loader: () => import('./layouts/Chat.vue'),
-  ssr: false,
-})
+const ChatLayout = defineAsyncComponent(() => import('./layouts/Chat.vue'))
 
-const FloatChat = defineAsyncComponent({
-  loader: () => import('./layouts/FloatChat.vue'),
-  ssr: false,
-})
+const LetsTalkLayout = defineAsyncComponent(() => import('./layouts/LetsTalk.vue'))
+
+const FloatChat = defineAsyncComponent(() => import('./layouts/FloatChat.vue'))
 
 export default {
   extends: DefaultTheme,
@@ -24,6 +18,8 @@ export default {
     let inner: any
     if (frontmatter.value.layout === 'chat') {
       inner = h(ChatLayout, null, {})
+    } else if (frontmatter.value.layout === 'lets-talk') {
+      inner = h(LetsTalkLayout, null, {})
     } else if (frontmatter.value.layout === 'home') {
       inner = h(HomeLayout, null, {})
     } else {
