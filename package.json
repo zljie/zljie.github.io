@@ -1,6 +1,6 @@
 {
   "name": "@chatbotui/agent-chatbot-ui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Agent Chatbot UI components based on ant-design-x-vue with 5-step execution lifecycle, HITL interactions, and streaming support",
   "main": "./dist/agent-chatbot-ui.umd.cjs",
   "module": "./dist/agent-chatbot-ui.js",

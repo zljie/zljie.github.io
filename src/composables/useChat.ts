@@ -769,27 +769,12 @@ export function useChat(initialMessages?: ChatMessage[]) {
               assistantMsg.thinkDone = true
             }
 
-            function getCurrentStepName(): string | null {
-              const steps = assistantMsg.stepLifecycle
-              if (!steps || steps.length === 0) return null
-              const activeOrCompleted = steps.filter(
-                (s) => s.status === 'active' || s.status === 'completed'
-              )
-              if (activeOrCompleted.length === 0) return null
-              const latest = activeOrCompleted[activeOrCompleted.length - 1]
-              return latest.stepName || `Step ${latest.step}`
-            }
 
             if (chunk.content !== undefined) {
-              // five_step 模式：每个步骤完成后换行分隔
-              // 其他模式（general_chat 或 undefined）：直接追加，保持流式体验
-              if (assistantMsg.mode === 'five_step') {
-                const stepName = getCurrentStepName()
-                const prefix = stepName ? `\n\n**【${stepName}】**\n` : '\n\n'
-                assistantMsg.content = (assistantMsg.content || '') + prefix + chunk.content
-              } else {
-                assistantMsg.content = (assistantMsg.content || '') + chunk.content
-              }
+              // 内容流与 step_update 生命周期分离：
+              // - general_chat: 连续正文流
+              // - five_step: 也保持连续正文流，步骤展示由 stepLifecycle 单独负责
+              assistantMsg.content = (assistantMsg.content || '') + chunk.content
               scrollToMessage(assistantMsg.id)
             }
 
