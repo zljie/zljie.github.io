@@ -17,6 +17,15 @@
   --vp-c-brand-3: #555555;
   --vp-c-brand-soft: rgba(17, 17, 17, 0.08);
 
+  /* VitePress core variables for LetsTalk page */
+  --vp-c-bg: #ffffff;
+  --vp-c-bg-soft: #f6f8fa;
+  --vp-c-bg-alt: #f6f8fa;
+  --vp-c-divider: #d0d7de;
+  --vp-c-text-1: #24292f;
+  --vp-c-text-2: #57606a;
+  --vp-c-text-3: #8b949e;
+
   /* Spacing */
   --spacing-section-y: 80px;
   --spacing-grid-gap: 32px;
@@ -27,10 +36,10 @@
 }
 
 .dark {
-  --vp-c-brand-1: #e0e0e0;
-  --vp-c-brand-2: #cccccc;
-  --vp-c-brand-3: #aaaaaa;
-  --vp-c-brand-soft: rgba(224, 224, 224, 0.1);
+  --vp-c-brand-1: #7c85ff;
+  --vp-c-brand-2: #939aff;
+  --vp-c-brand-3: #aaaaff;
+  --vp-c-brand-soft: rgba(124, 133, 255, 0.15);
 
   --color-bg-main: #0a0a0a;
   --color-bg-surface: #1a1a1a;
@@ -40,6 +49,15 @@
   --color-text-inverse: #111111;
   --color-border: #2a2a2a;
   --color-accent: #ffffff;
+
+  /* Dark mode core variables */
+  --vp-c-bg: #0d1117;
+  --vp-c-bg-soft: #161b22;
+  --vp-c-bg-alt: #161b22;
+  --vp-c-divider: #30363d;
+  --vp-c-text-1: #c9d1d9;
+  --vp-c-text-2: #b1bac4;
+  --vp-c-text-3: #8b949e;
 }
 
 /* Global overrides */

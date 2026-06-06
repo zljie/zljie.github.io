@@ -10,7 +10,7 @@ title: 赵龙杰's Portfolio
   <p style="font-size:1rem;color:var(--vp-c-text-2);max-width:480px;margin:0 auto 32px;">10 年产品研发经验，专注于企业数字化架构、低代码平台与团队敏捷转型。</p>
   <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
     <a href="/cv" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--vp-c-brand-1);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">📄 查看简历</a>
-    <a href="/chat" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--vp-c-bg-soft);color:var(--vp-c-text-1);border:1px solid var(--vp-c-divider);border-radius:8px;text-decoration:none;font-weight:600;">💬 与我对话</a>
+    <a href="/lets-talk" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--vp-c-bg-soft);color:var(--vp-c-text-1);border:1px solid var(--vp-c-divider);border-radius:8px;text-decoration:none;font-weight:600;">💬 与我聊聊</a>
   </div>
 </div>
 

@@ -51,73 +51,75 @@
       </div>
 
       <div class="lets-talk-chat-shell">
-        <section v-if="messages.length === 0" class="welcome-panel">
-          <span class="welcome-kicker">DISCOVERY CALL</span>
-          <h2>先从一个真实问题开始。</h2>
-          <p>
-            我更擅长围绕业务目标、组织协作和产品落地来对话。你可以直接说你正在推进的项目、
-            遇到的阻碍，或者希望我帮你一起澄清的决策。
-          </p>
-          <div class="welcome-tags">
-            <span v-for="tag in welcomeTags" :key="tag">{{ tag }}</span>
-          </div>
-          <div class="quick-prompts">
-            <div class="quick-prompts-label">快速开始</div>
-            <div class="quick-prompts-grid">
-              <button
-                v-for="prompt in quickPrompts"
-                :key="prompt.text"
-                class="quick-prompt-btn"
-                @click="sendQuickPrompt(prompt.text)"
-              >
-                <span class="quick-prompt-icon">{{ prompt.icon }}</span>
-                <span class="quick-prompt-text">{{ prompt.text }}</span>
-              </button>
+        <div class="chat-content-area">
+          <section v-if="messages.length === 0" class="welcome-panel">
+            <span class="welcome-kicker">DISCOVERY CALL</span>
+            <h2>先从一个真实问题开始。</h2>
+            <p>
+              我更擅长围绕业务目标、组织协作和产品落地来对话。你可以直接说你正在推进的项目、
+              遇到的阻碍，或者希望我帮你一起澄清的决策。
+            </p>
+            <div class="welcome-tags">
+              <span v-for="tag in welcomeTags" :key="tag">{{ tag }}</span>
             </div>
-          </div>
-        </section>
-
-        <div v-else class="messages" ref="messagesRef">
-          <template v-for="msg in messages" :key="msg.id">
-            <div class="message-row" :class="msg.role" :data-msg-id="msg.id">
-              <img
-                v-if="msg.role === 'assistant'"
-                class="avatar"
-                src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
-                alt="AI"
-              />
-              <div v-if="msg.role === 'user'" class="user-bubble">
-                {{ msg.content }}
+            <div class="quick-prompts">
+              <div class="quick-prompts-label">快速开始</div>
+              <div class="quick-prompts-grid">
+                <button
+                  v-for="prompt in quickPrompts"
+                  :key="prompt.text"
+                  class="quick-prompt-btn"
+                  @click="sendQuickPrompt(prompt.text)"
+                >
+                  <span class="quick-prompt-icon">{{ prompt.icon }}</span>
+                  <span class="quick-prompt-text">{{ prompt.text }}</span>
+                </button>
               </div>
-              <MarkdownBubble
-                v-else
-                :content="msg.content"
-                role="assistant"
-                :streaming="!msg.done"
-                :think-content="msg.thinkContent"
-                :think-done="msg.thinkDone"
-                :tool-calls="msg.toolCalls"
-                :step-lifecycle="msg.stepLifecycle"
-                :interaction="msg.interaction"
-                :confirm-request="msg.confirmRequest"
-                :slot-fill-request="msg.slotFillRequest"
-                @hitl-select="handleHitlSelect"
-                @hitl-confirm="handleHitlConfirm"
-                @hitl-cancel="handleHitlCancel"
-                @hitl-rating="handleHitlRating"
-                @hitl-input="handleHitlInput"
-                @hitl-dismiss="handleHitlDismiss"
-                @hitl-slot-fill="handleHitlSlotFill"
-                @hitl-slot-cancel="handleHitlSlotCancel"
-              />
-              <img
-                v-if="msg.role === 'user'"
-                class="avatar"
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=User"
-                alt="User"
-              />
             </div>
-          </template>
+          </section>
+
+          <div v-else class="messages" ref="messagesRef">
+            <template v-for="msg in messages" :key="msg.id">
+              <div class="message-row" :class="msg.role" :data-msg-id="msg.id">
+                <img
+                  v-if="msg.role === 'assistant'"
+                  class="avatar"
+                  src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
+                  alt="AI"
+                />
+                <div v-if="msg.role === 'user'" class="user-bubble">
+                  {{ msg.content }}
+                </div>
+                <MarkdownBubble
+                  v-else
+                  :content="msg.content"
+                  role="assistant"
+                  :streaming="!msg.done"
+                  :think-content="msg.thinkContent"
+                  :think-done="msg.thinkDone"
+                  :tool-calls="msg.toolCalls"
+                  :step-lifecycle="msg.stepLifecycle"
+                  :interaction="msg.interaction"
+                  :confirm-request="msg.confirmRequest"
+                  :slot-fill-request="msg.slotFillRequest"
+                  @hitl-select="handleHitlSelect"
+                  @hitl-confirm="handleHitlConfirm"
+                  @hitl-cancel="handleHitlCancel"
+                  @hitl-rating="handleHitlRating"
+                  @hitl-input="handleHitlInput"
+                  @hitl-dismiss="handleHitlDismiss"
+                  @hitl-slot-fill="handleHitlSlotFill"
+                  @hitl-slot-cancel="handleHitlSlotCancel"
+                />
+                <img
+                  v-if="msg.role === 'user'"
+                  class="avatar"
+                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=User"
+                  alt="User"
+                />
+              </div>
+            </template>
+          </div>
         </div>
 
         <div class="chat-input-area">
@@ -149,8 +151,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, watch } from 'vue'
-import { useChat, type InteractionOption } from './useChat'
-import MarkdownBubble from './MarkdownBubble.vue'
+import { useChat, MarkdownBubble, type InteractionOption } from '../chatbot-bridge'
 
 const config = computed(() => {
   if (typeof window === 'undefined') return { title: '', subtitle: '' }
@@ -467,6 +468,12 @@ function handleHitlSlotCancel(id: string) {
   box-shadow: 0 20px 60px rgba(17, 17, 17, 0.08);
 }
 
+.chat-content-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .welcome-panel {
   padding: 48px;
   display: flex;
@@ -598,6 +605,7 @@ function handleHitlSlotCancel(id: string) {
 }
 
 .chat-input-area {
+  flex-shrink: 0;
   padding: 20px 24px 24px;
   border-top: 1px solid var(--vp-c-divider);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--vp-c-bg));
@@ -693,3 +701,4 @@ function handleHitlSlotCancel(id: string) {
   }
 }
 </style>
+// test

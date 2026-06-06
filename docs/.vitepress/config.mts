@@ -1,12 +1,18 @@
 import { defineConfig } from 'vitepress'
-import { mockStreamingChat } from './theme/mockStreamingChat'
-import { mock5StepChat } from './theme/mock5StepChat'
+import { resolve } from 'path'
 
-const CHAT_ENDPOINT = process.env.CHAT_ENDPOINT || 'https://od-agent-production-ae5a.up.railway.app/chat'
+// Chat endpoint - use environment variable or fallback to production default
+const CHAT_ENDPOINT = process.env.VITE_CHAT_ENDPOINT || 'https://od-agent-production-ae5a.up.railway.app/chat'
+
+// Get absolute path to the package dist file
+const chatbotPkgPath = resolve(
+  process.cwd(),
+  'node_modules/@chatbotui/agent-chatbot-ui/dist/agent-chatbot-ui.es.js'
+)
 
 export default defineConfig({
   title: "赵龙杰's Portfolio",
-  description: 'Personal CV, blog, and AI chat interface',
+  description: 'Personal CV and blog',
 
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/avatar.svg' }],
@@ -26,10 +32,11 @@ export default defineConfig({
         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap',
       },
     ],
+    // Inject chat config for client-side access
     [
       'script',
       {},
-      `window.__CHAT_CONFIG__ = ${JSON.stringify({ endpoint: CHAT_ENDPOINT, title: "Let's Talk with 赵龙杰", subtitle: '聊合作机会、产品策略、数字化转型与 AI 落地' })};`,
+      `window.__CHAT_CONFIG__ = window.__CHAT_CONFIG__ || { endpoint: ${JSON.stringify(CHAT_ENDPOINT)}, title: "Let's Talk", subtitle: 'Start the conversation' };`,
     ],
   ],
 
@@ -38,8 +45,7 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '简历', link: '/cv' },
       { text: '博客', link: '/blog/' },
-      { text: 'Let’s Talk', link: '/lets-talk' },
-      { text: 'AI 对话', link: '/chat' },
+      { text: "Let's Talk", link: '/lets-talk' },
     ],
 
     sidebar: [
@@ -76,19 +82,17 @@ export default defineConfig({
   },
 
   vite: {
-    ssr: {
-      noExternal: ['ant-design-x-vue', 'ant-design-vue'],
-    },
     resolve: {
       alias: {
-        '../_util/type': '../_util/type.js',
+        '@chatbotui/agent-chatbot-ui': chatbotPkgPath,
       },
     },
-    plugins: [
-      // Only register in dev mode — SSR build should not include these
-      !process.env.VITEPRESS_BUILD && mockStreamingChat(),
-      !process.env.VITEPRESS_BUILD && mock5StepChat(),
-    ].filter(Boolean),
+    ssr: {
+      noExternal: ['ant-design-x-vue', 'ant-design-vue', 'dayjs', 'marked'],
+    },
+    optimizeDeps: {
+      include: ['dayjs', 'marked', 'ant-design-x-vue', 'ant-design-vue'],
+    },
   },
 
   markdown: {
