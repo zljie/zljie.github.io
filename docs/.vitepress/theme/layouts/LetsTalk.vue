@@ -98,6 +98,7 @@
                   :think-content="msg.thinkContent"
                   :think-done="msg.thinkDone"
                   :tool-calls="msg.toolCalls"
+                  :mode="msg.mode"
                   :step-lifecycle="msg.stepLifecycle"
                   :interaction="msg.interaction"
                   :confirm-request="msg.confirmRequest"
