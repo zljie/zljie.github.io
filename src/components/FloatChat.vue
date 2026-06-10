@@ -10,8 +10,8 @@
               alt="AI"
             />
             <div>
-              <div class="float-title">{{ config.title || 'AI Assistant' }}</div>
-              <div class="float-subtitle">{{ config.subtitle || 'Powered by ant-design-x-vue' }}</div>
+              <div class="float-title">{{ config.title || 'AI 助手' }}</div>
+              <div class="float-subtitle">{{ config.subtitle || '由 ant-design-x-vue 驱动' }}</div>
             </div>
           </div>
           <button class="float-close" @click="isOpen = false">
@@ -111,7 +111,7 @@ const config = computed(() => {
 
 const isOpen = ref(false)
 const unread = ref(0)
-const welcomeUser = ref({ name: 'Guest' })
+const welcomeUser = ref({ name: '访客' })
 const chatStyle = ref<Record<string, string>>({ bottom: '100px', right: '24px' })
 
 let dragOffsetX = 0

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Chatbot UI - Examples</title>
+  <title>Agent 聊天机器人 UI - 示例</title>
   <style>
     :root {
       --vp-c-brand-1: #646cff;
@@ -134,47 +134,47 @@
 </head>
 <body>
   <nav class="demo-nav">
-    <h1>Agent Chatbot UI</h1>
-    <button class="active" onclick="showDemo('full')">Full Page Chat</button>
-    <button onclick="showDemo('float')">Floating Widget</button>
-    <button onclick="showDemo('components')">Components</button>
-    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light">
+    <h1>Agent 聊天机器人 UI</h1>
+    <button class="active" onclick="showDemo('full')">全屏聊天</button>
+    <button onclick="showDemo('float')">悬浮组件</button>
+    <button onclick="showDemo('components')">组件</button>
+    <button id="theme-toggle" onclick="toggleTheme()" title="切换深色/浅色模式">
       <span id="theme-icon">🌙</span>
     </button>
   </nav>
 
   <main class="demo-container">
     <section id="demo-full" class="demo-section active">
-      <h2>Full Page Chat Demo</h2>
-      <p>Import the Chat component for a complete chat interface with sidebar, scenarios, and message history.</p>
+      <h2>全屏聊天示例</h2>
+      <p>导入 Chat 组件以获得完整的聊天界面，包括侧边栏、场景和消息历史。</p>
       <div id="chat-app" style="height: 600px; border: 1px solid var(--vp-c-divider); border-radius: 12px; overflow: hidden;"></div>
     </section>
 
     <section id="demo-float" class="demo-section">
-      <h2>Floating Widget Demo</h2>
-      <p>Add a floating chat button that expands into a compact chat window.</p>
+      <h2>悬浮组件示例</h2>
+      <p>添加一个悬浮聊天按钮，点击可展开为紧凑的聊天窗口。</p>
       <div id="float-app" style="height: 500px; position: relative; border: 1px solid var(--vp-c-divider); border-radius: 12px;"></div>
     </section>
 
     <section id="demo-components" class="demo-section">
-      <h2>Individual Components</h2>
-      <p>Use components individually for more control.</p>
+      <h2>独立组件</h2>
+      <p>单独使用组件以获得更多控制。</p>
       
       <div class="demo-grid">
         <div class="demo-card">
           <h3>MarkdownBubble</h3>
-          <p>Render markdown content with syntax highlighting and tool call displays.</p>
-          <span class="tag">Component</span>
+          <p>渲染 Markdown 内容，支持语法高亮和工具调用展示。</p>
+          <span class="tag">组件</span>
         </div>
         <div class="demo-card">
           <h3>AgentExecutionCard</h3>
-          <p>Display the 5-step agent execution lifecycle.</p>
-          <span class="tag">Component</span>
+          <p>展示 Agent 5步执行生命周期。</p>
+          <span class="tag">组件</span>
         </div>
         <div class="demo-card">
           <h3>HumanInTheLoopCard</h3>
-          <p>HITL interaction cards: choice, confirm, rating, input, slot-fill.</p>
-          <span class="tag">Component</span>
+          <p>HITL 交互卡片：选择、确认、评分、输入、槽位填充。</p>
+          <span class="tag">组件</span>
         </div>
       </div>
     </section>
@@ -190,7 +190,7 @@
   </script>
 
   <script>
-    // Detect initial theme from prefers-color-scheme
+    // 根据 prefers-color-scheme 检测初始主题
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const initialTheme = prefersDark ? 'dark' : 'light'
     document.documentElement.setAttribute('data-theme', initialTheme)

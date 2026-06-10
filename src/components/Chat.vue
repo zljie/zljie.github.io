@@ -2,8 +2,8 @@
   <div class="chat-page">
     <div class="chat-header">
       <div class="header-info">
-        <span class="header-title">{{ config.title || 'AI Chat' }}</span>
-        <span class="header-subtitle">{{ config.subtitle || 'Powered by Agent Chatbot UI' }}</span>
+        <span class="header-title">{{ config.title || 'AI 助手' }}</span>
+        <span class="header-subtitle">{{ config.subtitle || '由 Agent 聊天机器人 UI 驱动' }}</span>
       </div>
       <div class="header-actions">
         <button class="log-btn" @click="showLogPanel = !showLogPanel" title="会话日志">
@@ -45,9 +45,9 @@
     <div class="chat-container">
       <!-- Left sidebar: scenarios + conversations -->
       <div class="conversation-list">
-        <!-- Demo Scenarios -->
+        <!-- 示例场景 -->
         <div class="conv-section">
-          <div class="conv-section-title">Demo Scenarios</div>
+          <div class="conv-section-title">示例场景</div>
           <div
             v-for="sc in scenarios"
             :key="sc.id"
@@ -65,10 +65,10 @@
 
         <div class="conv-divider" />
 
-        <!-- My Conversations -->
+        <!-- 我的对话 -->
         <div class="conv-section conv-section--flex">
-          <div class="conv-section-title">My Chats</div>
-          <button class="new-chat-btn" @click="createConversation" title="New chat">+</button>
+          <div class="conv-section-title">我的对话</div>
+          <button class="new-chat-btn" @click="createConversation" title="新建对话">+</button>
         </div>
         <div
           v-for="conv in conversations"
@@ -91,11 +91,11 @@
               src="https://api.dicebear.com/7.x/bottts/svg?seed=AI"
               alt="AI"
             />
-            <div class="welcome-title">{{ config.title || 'AI Assistant' }}</div>
-            <div class="welcome-subtitle">{{ config.subtitle || 'Powered by Agent Chatbot UI' }}</div>
+            <div class="welcome-title">{{ config.title || 'AI 助手' }}</div>
+            <div class="welcome-subtitle">{{ config.subtitle || '由 Agent 聊天机器人 UI 驱动' }}</div>
           </div>
           <div class="quick-prompts">
-            <div class="quick-prompts-label">Try these</div>
+            <div class="quick-prompts-label">试试这些</div>
             <div class="quick-prompts-grid">
               <button
                 v-for="qp in quickPrompts"
@@ -161,7 +161,7 @@
               v-model="inputValue"
               class="chat-input"
               :disabled="loading"
-              placeholder="Type a message..."
+              placeholder="输入消息..."
               @keydown.enter="handleSendMessage"
             />
             <button
@@ -194,7 +194,7 @@ const config = computed(() => {
 
 const { messages, inputValue, loading, messagesRef, sendMessage, continueTask, resumeHitl, currentSessionId, hitlState, hitlLoading, setMessages, clearMessages } = useChat()
 
-// ── Demo Scenarios ──────────────────────────────────────────────
+// ── 示例场景 ──────────────────────────────────────────────
 interface Scenario {
   id: string
   title: string
@@ -206,7 +206,7 @@ interface Scenario {
 const skillDemo: ChatMessage[] = [
   {
     id: 1, role: 'user',
-    content: 'What\'s the weather in Shanghai today?',
+    content: '今天上海天气怎么样？',
   },
   {
     id: 2, role: 'assistant',
@@ -215,7 +215,7 @@ const skillDemo: ChatMessage[] = [
     toolCalls: [
       {
         id: 'tc-1', type: 'skill', name: 'get_weather',
-        description: 'Query weather information for a city',
+        description: '查询城市天气信息',
         input: { city: 'Shanghai', unit: 'celsius' },
         status: 'success',
         output: { city: 'Shanghai', temp: 24, condition: 'Cloudy', humidity: 65 },
@@ -224,14 +224,14 @@ const skillDemo: ChatMessage[] = [
   },
   {
     id: 3, role: 'assistant',
-    content: '## Shanghai Weather\n\n| Item | Value |\n|------|-------|\n| **City** | Shanghai |\n| **Temperature** | 24°C |\n| **Condition** | Cloudy |\n| **Humidity** | 65% |\n\nThe weather in Shanghai today is quite pleasant — cloudy with a comfortable temperature. Would you like me to check any other cities?',
+    content: '## 上海天气\n\n| 项目 | 数值 |\n|------|-------|\n| **城市** | 上海 |\n| **温度** | 24°C |\n| **天气状况** | 多云 |\n| **湿度** | 65% |\n\n今天上海的天气相当宜人 — 多云，温度舒适。需要我查看其他城市的天气吗？',
   },
 ]
 
 const ragDemo: ChatMessage[] = [
   {
     id: 1, role: 'user',
-    content: 'What\'s the procurement approval policy for orders over 100k?',
+    content: '超过 10 万的采购订单审批政策是什么？',
   },
   {
     id: 2, role: 'assistant',
@@ -240,7 +240,7 @@ const ragDemo: ChatMessage[] = [
     toolCalls: [
       {
         id: 'tc-2', type: 'rag', name: 'procurement_policy',
-        description: 'Search internal procurement policy documents',
+        description: '搜索内部采购政策文档',
         input: { query: 'approval threshold 100k procurement', top_k: 3 },
         status: 'success',
         output: { chunks: ['PO > CNY 100,000 requires CFO countersignature.', 'Budget pre-approval needed for >50k.'] },
@@ -249,55 +249,55 @@ const ragDemo: ChatMessage[] = [
   },
   {
     id: 3, role: 'assistant',
-    content: 'Based on the procurement policy documents, here\'s the approval matrix:\n\n| Order Range | Approver |\n|-------------|----------|\n| < CNY 50,000 | Department Manager |\n| CNY 50,000 – 100,000 | Finance Director |\n| **> CNY 100,000** | **CFO countersignature required** |\n\n> **Note:** Budget pre-approval is mandatory for orders ≥ CNY 50,000 before PO issuance.\n\nDo you need the full policy document or help drafting the approval request?',
+    content: '根据采购政策文档，以下是审批矩阵：\n\n| 订单金额 | 审批人 |\n|-------------|----------|\n| < ¥50,000 | 部门经理 |\n| ¥50,000 – 100,000 | 财务总监 |\n| **> ¥100,000** | **CFO 会签** |\n\n> **注意：** 订单金额 ≥ ¥50,000 时，在签发采购订单前必须完成预算预审批。\n\n您需要完整的政策文档或起草审批申请的帮助吗？',
   },
 ]
 
 const thinkDemo: ChatMessage[] = [
   {
     id: 1, role: 'user',
-    content: 'Should we migrate our monolith app to microservices? What factors should we consider?',
+    content: '我们应该把单体应用迁移到微服务吗？需要考虑哪些因素？',
   },
   {
     id: 2, role: 'assistant',
-    content: 'Let me think through this systematically...',
-    thinkContent: 'The user is asking about microservices migration decision factors.\n\n**Key dimensions to evaluate:**\n\n1. **Team structure** — Conway\'s Law: microservice boundaries should mirror team boundaries. If teams are small and colocated, a monolith may actually be more efficient.\n\n2. **Scale requirements** — Microservices shine when different components have wildly different scaling needs (e.g., search vs. user auth).\n\n3. **Deployment frequency** — High deployment frequency + independent release trains → microservices win. Low frequency → unnecessary complexity.\n\n4. **Data consistency tolerance** — Microservices require accepting eventual consistency. If the business needs strong ACID guarantees across domains, this is a major red flag.\n\n5. **Operational overhead** — Service mesh, distributed tracing, circuit breakers, separate pipelines... the hidden tax is enormous without platform engineering investment.\n\n**Recommendation framework:**\n- Start with modular monolith (clean domain boundaries inside one deployable unit)\n- Extract services only when: (a) team is >8 people per domain, (b) scaling pain is real, (c) CI/CD is mature\n\n**Anti-pattern warning:** "We\'ll do microservices so we can scale" — premature optimisation that kills startups.',
+    content: '让我系统地分析一下...',
+    thinkContent: '用户在询问微服务迁移决策需要考虑的因素。\n\n**关键评估维度：**\n\n1. **团队结构** — Conway 定律：微服务的边界应该与团队边界一致。如果团队规模小且同地协作，单体应用实际上可能更高效。\n\n2. **扩展需求** — 当不同组件有截然不同的扩展需求时（如搜索服务 vs 用户认证），微服务优势明显。\n\n3. **部署频率** — 高部署频率 + 独立的发布节奏 → 微服务胜出。低频率 → 不必要的复杂性。\n\n4. **数据一致性容忍度** — 微服务需要接受最终一致性。如果业务需要跨领域的强 ACID 保证，这是一个重大警示信号。\n\n5. **运维开销** — 服务网格、分布式追踪、熔断器、独立流水线...如果没有平台工程投入，隐藏成本巨大。\n\n**建议框架：**\n- 从模块化单体开始（在一个可部署单元内保持清晰的领域边界）\n- 只有当满足以下条件时才抽取服务：(a) 每领域团队超过 8 人，(b) 扩展痛点真实存在，(c) CI/CD 已成熟\n\n**反模式警告：**"我们用微服务就可以扩展" — 这是杀死创业公司的过早优化。',
     thinkDone: true,
   },
   {
     id: 3, role: 'assistant',
-    content: 'This is a high-stakes architectural decision. Let me walk you through the key evaluation dimensions:\n\n## Should You Migrate to Microservices?\n\n### TL;DR: Probably not yet.\n\nThe microservices-vs-monolith debate is often a distraction. What matters more is **service boundaries** and **team autonomy**.\n\n---\n\n### Decision Framework\n\n| Factor | Microservices Win | Monolith Wins |\n|--------|-----------------|---------------|\n| **Team size** | >8 engineers per domain | Small colocated team |\n| **Scaling** | Wildly different per component | Uniform load |\n| **Deploy cadence** | Multiple deploys/day | Weekly or less |\n| **Data consistency** | Eventual consistency OK | Strong ACID needed |\n| **Operational maturity** | SRE, service mesh, tracing | Manual deployments |\n\n---\n\n### My Recommendation\n\n**Start with a Modular Monolith.**\n\nEnforce strict domain boundaries and clean architecture *inside* one deployable unit. Extract services only when you hit real, measured pain:\n\n1. A specific component needs independent scaling\n2. Teams are blocked by deployment coupling\n3. CI/CD is mature enough to handle distributed complexity\n\n---\n\n### Red Flags\n\n- "We\'ll scale better" (premature optimization)\n- "Microservices are more modern" (cargo cult)\n- No dedicated platform/ops team\n\nWhat\'s your current team size and deployment frequency? That context would help me give a more targeted assessment.',
+    content: '这是一个高风险的架构决策。让我为你梳理关键评估维度：\n\n## 应该迁移到微服务吗？\n\n### TL;DR：可能还不是时候。\n\n微服务与单体之争往往是分散注意力的。更重要的是**服务边界**和**团队自主权**。\n\n---\n\n### 决策框架\n\n| 因素 | 微服务胜出 | 单体胜出 |\n|--------|-----------------|---------------|\n| **团队规模** | 每领域超过 8 名工程师 | 小型同地协作团队 |\n| **扩展性** | 各组件负载差异大 | 统一负载 |\n| **部署节奏** | 每天多次部署 | 每周或更少 |\n| **数据一致性** | 可接受最终一致性 | 需要强 ACID 保证 |\n| **运维成熟度** | SRE、服务网格、追踪 | 手动部署 |\n\n---\n\n### 我的建议\n\n**从模块化单体开始。**\n\n在一个可部署单元内强制执行严格的领域边界和清晰的架构。只有当遇到真实的、可衡量的痛点时才抽取服务：\n\n1. 某个特定组件需要独立扩展\n2. 团队被部署耦合所阻碍\n3. CI/CD 足够成熟以处理分布式复杂性\n\n---\n\n### 警示信号\n\n- "我们会扩展得更好"（过早优化）\n- "微服务更现代"（技术崇拜）\n- 没有专门的平台/运维团队\n\n你们当前的团队规模和部署频率是多少？这个背景信息有助于我给出更有针对性的评估。',
   },
 ]
 
 const multiTurnDemo: ChatMessage[] = [
   {
     id: 1, role: 'user',
-    content: 'I want to understand our sales pipeline.',
+    content: '我想了解一下我们的销售 pipeline。',
   },
   {
     id: 2, role: 'assistant',
-    content: 'Our sales pipeline consists of 5 key stages:\n\n```\nLead → MQL → SQL → Opportunity → Contract → Closed\n```\n\n**Key metrics:**\n- Average deal cycle: **28 days**\n- Win rate: **34%**\n- Average deal size: **¥128,000**\n\nWhich stage would you like to dive deeper into — lead generation, qualification criteria, or conversion analysis?',
+    content: '我们的销售管道包含 5 个关键阶段：\n\n```\n线索 → MQL → SQL → 商机 → 合同 → 成交\n```\n\n**关键指标：**\n- 平均成交周期：**28 天**\n- 赢单率：**34%**\n- 平均客单价：**¥128,000**\n\n您想深入了解哪个阶段 — 线索生成、筛选标准还是转化分析？',
   },
   {
     id: 3, role: 'user',
-    content: 'Tell me more about the MQL to SQL conversion rate.',
+    content: '给我讲讲 MQL 到 SQL 的转化率。',
   },
   {
     id: 4, role: 'assistant',
-    content: '## MQL → SQL Conversion Analysis\n\n**Overall conversion rate: 41%**\n\n| Segment | Conversion Rate | Avg Time |\n|---------|----------------|----------|\n| Inbound (content) | 38% | 6 days |\n| Inbound (events) | 52% | 3 days |\n| Outbound | 29% | 11 days |\n\n**Key insight:** Outbound leads take 3x longer to qualify and convert at lower rates — suggesting qualification criteria misalignment with outbound targeting.\n\n**Recommended actions:**\n1. Align outbound ICP (Ideal Customer Profile) with MQL scoring model\n2. Add engagement scoring to complement firmographic scoring\n\nWould you like a breakdown by industry vertical or sales rep?',
+    content: '## MQL → SQL 转化分析\n\n**总体转化率：41%**\n\n| 客户群 | 转化率 | 平均耗时 |\n|---------|----------------|----------|\n| Inbound（内容营销） | 38% | 6 天 |\n| Inbound（活动获客） | 52% | 3 天 |\n| Outbound（主动外呼） | 29% | 11 天 |\n\n**关键洞察：**外呼线索的筛选和转化耗时是入站线索的 3 倍，且转化率更低 — 这表明外呼目标与 MQL 评分标准存在偏差。\n\n**建议措施：**\n1. 校准外呼 ICP（理想客户画像）与 MQL 评分模型\n2. 增加互动评分来补充企业特征评分\n\n您想按行业垂直领域或销售人员来细分查看吗？',
   },
   {
     id: 5, role: 'user',
-    content: 'Which rep has the highest outbound conversion rate?',
+    content: '哪位销售的主动外呼转化率最高？',
   },
   {
     id: 6, role: 'assistant',
-    content: '## Outbound Conversion by Sales Rep\n\n| Rep | Outbound MQLs | SQLs | Conversion | Avg Cycle |\n|-----|--------------|------|-----------|-----------|\n| **Sarah Chen** | 47 | 21 | **44.7%** | 9 days |\n| Marcus Liu | 63 | 24 | 38.1% | 10 days |\n| Anna Wang | 39 | 14 | 35.9% | 12 days |\n| Tom Zhao | 55 | 17 | 30.9% | 14 days |\n\n**Sarah Chen** leads the team with **44.7%** outbound conversion — 15% above team average. Key observation: she prioritizes warm accounts (those with recent product demo requests) over cold outreach.\n\nWant me to analyze Sarah\'s outreach playbook to identify replicable patterns?',
+    content: '## 销售主动外呼转化分析\n\n| 销售 | 外呼 MQL | SQL | 转化率 | 平均周期 |\n|-----|--------------|------|-----------|-----------|\n| **陈思远** | 47 | 21 | **44.7%** | 9 天 |\n| 刘明辉 | 63 | 24 | 38.1% | 10 天 |\n| 王安娜 | 39 | 14 | 35.9% | 12 天 |\n| 赵天成 | 55 | 17 | 30.9% | 14 天 |\n\n**陈思远**以 **44.7%** 的外呼转化率领跑全队 — 比团队平均水平高出 15%。关键发现：她会优先跟进活跃客户（有近期产品演示请求的），而非冷启动外呼。\n\n需要我分析陈思远的外呼策略，找出可复制的模式吗？',
   },
 ]
 
-// 5-Step Demo: Purchase Request Query
+// 5步示例：采购需求查询
 const fiveStepDemo: ChatMessage[] = [
   {
     id: 1, role: 'user',
@@ -450,26 +450,26 @@ const fiveStepDemo: ChatMessage[] = [
 ]
 
 const scenarios: Scenario[] = [
-  { id: 'demo-skill', title: 'Skill Calling', subtitle: 'Weather & tools', icon: '🔧', messages: skillDemo },
-  { id: 'demo-rag', title: 'RAG Retrieval', subtitle: 'Policy search', icon: '📚', messages: ragDemo },
-  { id: 'demo-think', title: 'Think Mode', subtitle: 'Reasoning chain', icon: '🧠', messages: thinkDemo },
-  { id: 'demo-5step', title: '5-Step Agent', subtitle: '透明执行', icon: '🔍', messages: fiveStepDemo },
-  { id: 'demo-multiturn', title: 'Multi-turn', subtitle: 'Context memory', icon: '💬', messages: multiTurnDemo },
+  { id: 'demo-skill', title: '工具调用', subtitle: '天气和工具', icon: '🔧', messages: skillDemo },
+  { id: 'demo-rag', title: 'RAG 检索', subtitle: '政策查询', icon: '📚', messages: ragDemo },
+  { id: 'demo-think', title: '思考模式', subtitle: '推理链', icon: '🧠', messages: thinkDemo },
+  { id: 'demo-5step', title: '5步 Agent', subtitle: '透明执行', icon: '🔍', messages: fiveStepDemo },
+  { id: 'demo-multiturn', title: '多轮对话', subtitle: '上下文记忆', icon: '💬', messages: multiTurnDemo },
 ]
 
-// ── Quick Prompts ───────────────────────────────────────────────
+// ── 快捷提示词 ───────────────────────────────────────────────
 const quickPrompts = [
-  { icon: '🔧', text: 'What\'s the weather in Beijing?' },
-  { icon: '🧠', text: 'Explain microservices vs monolith in simple terms' },
-  { icon: '📊', text: 'Analyze our Q1 sales performance' },
-  { icon: '📋', text: 'What\'s the procurement approval policy for 200k orders?' },
+  { icon: '🔧', text: '今天北京天气怎么样？' },
+  { icon: '🧠', text: '用简单的语言解释微服务和单体的区别' },
+  { icon: '📊', text: '分析一下我们 Q1 的销售业绩' },
+  { icon: '📋', text: '20 万订单的采购审批政策是什么？' },
 ]
 
-// ── Active conversation state ────────────────────────────────────
+// ── 当前对话状态 ────────────────────────────────────
 type ActiveId = string | number
 const activeId = ref<ActiveId>('welcome')
 
-// ── My Conversations ────────────────────────────────────────────
+// ── 我的对话 ────────────────────────────────────────────
 interface Conversation {
   id: number
   title: string
@@ -492,7 +492,7 @@ function selectConversation(id: number) {
 
 function createConversation() {
   const id = nextConvId.value++
-  conversations.value.unshift({ id, title: 'New Chat', messages: [] })
+  conversations.value.unshift({ id, title: '新对话', messages: [] })
   activeId.value = id
   clearMessages()
 }
@@ -507,7 +507,7 @@ async function handleSendMessage() {
   if (!text || loading.value) return
   await sendMessage()
 
-  // If on a demo scenario, fork to a new user conversation
+  // 如果在示例场景上，分叉到新的用户对话
   if (typeof activeId.value === 'string' && activeId.value.startsWith('demo-')) {
     const id = nextConvId.value++
     conversations.value.unshift({
@@ -519,7 +519,7 @@ async function handleSendMessage() {
     return
   }
 
-  // Save to existing user conversation
+  // 保存到现有用户对话
   const conv = conversations.value.find((c) => c.id === activeId.value)
   if (conv) {
     conv.messages = [...messages.value]
@@ -529,16 +529,16 @@ async function handleSendMessage() {
   }
 }
 
-// ── HITL Event Handlers ────────────────────────────────────────────
+// ── HITL 事件处理 ────────────────────────────────────────────
 
 /**
- * Handle HITL option selection
- * Uses resumeHitl to continue from the interrupted point, NOT continueTask
+ * 处理 HITL 选项选择
+ * 使用 resumeHitl 从中断点继续，而不是 continueTask
  */
 function handleHitlSelect(option: InteractionOption, params?: Record<string, any>) {
   console.log('[HITL] Select option:', option, params)
 
-  // For interaction options that represent confirmation actions
+  // 对于代表确认操作的交互选项
   if (option.action === 'confirm' || option.action === 'execute') {
     resumeHitl({
       action: 'confirm',
@@ -549,14 +549,14 @@ function handleHitlSelect(option: InteractionOption, params?: Record<string, any
       action: 'cancel',
     })
   } else {
-    // For other actions (navigate, export, compose), use continueTask with action marker
+    // 对于其他操作（导航、导出、编写），使用带 action 标记的 continueTask
     continueTask(`[action] ${option.id}`)
   }
 }
 
 /**
- * Handle confirm button click
- * This is the key fix: uses resumeHitl to resume from the interrupted point
+ * 处理确认按钮点击
+ * 关键修复：使用 resumeHitl 从中断点恢复
  */
 function handleHitlConfirm(id: string, params?: Record<string, any>) {
   console.log('[HITL] Confirm:', id, params)
@@ -595,8 +595,8 @@ function handleHitlDismiss() {
 }
 
 /**
- * Handle slot-fill: user filled the required fields and submitted
- * This is the key fix: uses resumeHitl with filled_slots to continue the flow
+ * 处理槽位填充：用户填写了必填字段并提交
+ * 关键修复：使用 resumeHitl 和 filled_slots 继续流程
  */
 function handleHitlSlotFill(id: string, values: Record<string, any>) {
   console.log('[HITL] Slot fill:', id, values)
@@ -615,7 +615,7 @@ function handleHitlSlotCancel(id: string) {
   })
 }
 
-// ── Log Panel ───────────────────────────────────────────────────
+// ── 日志面板 ───────────────────────────────────────────────────
 const showLogPanel = ref(false)
 const selectedSession = ref<string | null>(null)
 
