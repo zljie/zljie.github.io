@@ -320,6 +320,128 @@ HITL（Human-in-the-Loop）允许 Agent 在执行关键操作前暂停，等待�
 | **approval_request** | 多级审批请求 | `approval_request` |
 | **interaction** | 任务完成后的操作选项选择 | `interaction` |
 
+### slot_fill_request（槽位填充请求）
+
+槽位填充用于需要用户补充表单字段的场景，例如补充订单号、选择类型、输入备注等。
+
+#### SSE 事件格式
+
+**支持两种格式：**
+
+**格式一：标准 SSE 格式**
+```
+event: slot_fill_request
+data: {"id": "TASK-001", "title": "补充订单信息", "message": "请补充以下信息以继续处理", "slots": [...], "required": true}
+```
+
+**格式二：紧凑格式（Tab 分隔）**
+```
+slot_fill_request	{"id": "TASK-001", "title": "补充订单信息", "message": "请补充以下信息以继续处理", "slots": [...], "required": true}
+```
+
+#### slot_fill_request 数据结构
+
+```json
+{
+  "id": "TASK-001",
+  "title": "补充订单信息",
+  "message": "请补充以下信息以继续处理",
+  "slots": [
+    {
+      "name": "orderId",
+      "label": "订单号",
+      "type": "text",
+      "required": true,
+      "placeholder": "请输入订单号",
+      "validation": {
+        "pattern": "^PO-\\d{4}-\\d+$",
+        "message": "订单号格式应为 PO-年份-数字"
+      }
+    },
+    {
+      "name": "type",
+      "label": "紧急程度",
+      "type": "select",
+      "required": true,
+      "options": [
+        { "value": "normal", "label": "普通" },
+        { "value": "urgent", "label": "紧急" },
+        { "value": "critical", "label": "危急" }
+      ]
+    },
+    {
+      "name": "remark",
+      "label": "备注",
+      "type": "textarea",
+      "required": false,
+      "placeholder": "选填，有什么特殊说明吗？"
+    }
+  ],
+  "required": true
+}
+```
+
+#### 槽位字段类型说明
+
+| type | 说明 | 支持的配置项 |
+|------|------|-------------|
+| `text` | 单行文本输入 | `placeholder`, `validation` |
+| `textarea` | 多行文本输入 | `placeholder`, `maxLength` |
+| `select` | 下拉选择 | `options` (value/label 数组) |
+| `radio` | 单选按钮 | `options` (value/label 数组) |
+| `checkbox` | 多选框 | `options` (value/label 数组) |
+
+#### 槽位验证配置
+
+```json
+{
+  "name": "email",
+  "label": "邮箱",
+  "type": "text",
+  "validation": {
+    "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+    "message": "请输入有效的邮箱地址"
+  }
+}
+```
+
+#### 前端提交槽位数据
+
+用户填写完表单后，前端通过 `resumeHitl` 提交：
+
+```ts
+const { resumeHitl } = useChat()
+
+// 监听 slot-fill 事件
+function onSlotFill(id: string, values: Record<string, any>) {
+  resumeHitl({
+    action: 'submit_slots',
+    taskId: id,
+    filledSlots: values,  // 包含所有槽位字段
+    userInput: '用户输入的原始内容'
+  })
+}
+```
+
+提交后端接收格式：
+
+```json
+{
+  "confirmation_result": {
+    "task_id": "TASK-001",
+    "action": "submit_slots",
+    "filled_slots": {
+      "orderId": "PO-2024-001",
+      "type": "urgent",
+      "remark": "请尽快处理"
+    }
+  },
+  "session_id": "sess_abc123"
+}
+```
+
+---
+
 ### 槽位填充示例
 
 后端发送 `slot_fill` 事件，前端显示填写表单，用户提交后通过 `resumeHitl` 继续流程：
@@ -454,8 +576,14 @@ interface LogEntry {
 
 ### SSE 数据格式
 
-所有事件使用 `event:` 行指定事件类型，`data:` 行传递 JSON 数据：
+**支持两种 SSE 格式：**
 
+| 格式 | 说明 | 示例 |
+|------|------|------|
+| **标准 SSE** | `event:` 和 `data:` 分行，块之间用空行分隔 | `event: content\ndata: {...}\n\n` |
+| **紧凑格式** | 事件类型和 JSON 用 Tab 分隔，在同一行 | `content\t{"content": "..."}\n` |
+
+**标准 SSE 格式示例：**
 ```
 event: content
 data: {"content": "已查询到 5 条未执行采购需求"}
@@ -466,6 +594,15 @@ data: {"step": 4, "stepName": "执行过程", "status": "completed", "summary": 
 event: done
 data: {}
 ```
+
+**紧凑格式示例：**
+```
+content	{"content": "已查询到 5 条未执行采购需求"}
+step_update	{"step": 4, "stepName": "执行过程", "status": "completed"}
+done	{}
+```
+
+> 💡 **提示**：紧凑格式适合后端实现简单，减少了格式处理的复杂度。
 
 ### 五步执行生命周期（step_update）
 
