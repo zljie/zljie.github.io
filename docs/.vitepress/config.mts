@@ -66,6 +66,7 @@ export default defineConfig({
           { text: 'VitePress × ant-design-x-vue 踩坑全记录', link: '/blog/2026-05-29_VitePress嵌入ant-design-x-vue悬浮聊天的踩坑全记录' },
           { text: 'SSE 流式响应后端踩坑全记录', link: '/blog/2026-05-29_SSE流式响应后端踩坑报告' },
           { text: 'AI 动态生成问卷踩坑全记录', link: '/blog/2026-06-02_AI动态生成问卷踩坑全记录' },
+          { text: '十分钟为 VitePress 嵌入 AI 对话界面', link: '/blog/2026-06-10_用-chatbot-ui-十分钟为-VitePress-嵌入-AI-对话界面' },
         ],
       },
     ],

@@ -166,6 +166,7 @@ const {
   messagesRef,
   sendMessage,
   continueTask,
+  resumeHitl,
   scrollToBottom,
 } = useChat()
 
@@ -267,10 +268,11 @@ function handleHitlDismiss() {
 }
 
 function handleHitlSlotFill(id: string, values: Record<string, any>) {
-  const formattedValues = Object.entries(values)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join(', ')
-  continueTask(`[slot-fill] ${id} | ${formattedValues}`)
+  resumeHitl({
+    action: 'submit_slots',
+    taskId: id,
+    filledSlots: values,
+  })
 }
 
 function handleHitlSlotCancel(id: string) {
