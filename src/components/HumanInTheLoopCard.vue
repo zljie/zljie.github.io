@@ -20,6 +20,11 @@
         <svg v-else-if="cardType === 'rating'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
+        <!-- slot-fill: clipboard/form icon -->
+        <svg v-else-if="cardType === 'slot-fill'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
         <!-- input -->
         <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="4 7 4 4 20 4 20 7"/>
@@ -28,9 +33,9 @@
         </svg>
       </div>
       <div class="hitl-card__meta">
-        <span class="hitl-card__title">{{ interaction?.title || confirm?.title }}</span>
-        <span v-if="interaction?.description || confirm?.message" class="hitl-card__desc">
-          {{ interaction?.description || confirm?.message }}
+        <span class="hitl-card__title">{{ interaction?.title || confirm?.title || slotFill?.title }}</span>
+        <span v-if="interaction?.description || confirm?.message || slotFill?.message" class="hitl-card__desc">
+          {{ interaction?.description || confirm?.message || slotFill?.message }}
         </span>
       </div>
       <div v-if="isRequired" class="hitl-card__required-badge">需回复</div>

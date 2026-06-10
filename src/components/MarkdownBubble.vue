@@ -17,7 +17,7 @@
             <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </span>
-        <span class="think-toggle__label">Thinking Process</span>
+        <span class="think-toggle__label">思考过程</span>
         <span v-if="!thinkDone" class="think-toggle__dots">
           <span></span><span></span><span></span>
         </span>
@@ -127,6 +127,7 @@ import { computed, watch, ref } from 'vue'
 import { marked } from 'marked'
 import type { ToolCall, StepInfo, InteractionChoice, InteractionOption, ConfirmRequest, SlotFillRequest } from '../composables/useChat'
 import AgentExecutionCard from './AgentExecutionCard.vue'
+import HumanInTheLoopCard from './HumanInTheLoopCard.vue'
 
 const props = defineProps<{
   content: string

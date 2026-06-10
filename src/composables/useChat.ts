@@ -457,93 +457,110 @@ interface Chunk {
   }
 }
 
+/**
+ * Parse SSE format. Supports two formats:
+ * 1. Standard SSE (event: and data: on separate lines, separated by blank lines)
+ * 2. Compact format: `event_type\tdata_json\n` (tab-separated on same line)
+ */
 function parseSSE(raw: string): Chunk[] {
   const chunks: Chunk[] = []
-  const curLines: string[] = []
+  const lines = raw.split('\n')
 
-  for (const rawLine of raw.split('\n')) {
-    const line = rawLine.trimEnd()
-    if (line === '') {
-      if (curLines.length > 0) {
-        const parsed = parseEventLines(curLines)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trimEnd()
+
+    // Skip empty lines (standard SSE block separators)
+    if (line === '') continue
+
+    // Handle compact format: `event_type\tdata_json` (tab-separated on same line)
+    if (line.includes('\t')) {
+      const parts = line.split('\t')
+      if (parts.length >= 2) {
+        const eventType = parts[0].trim()
+        const dataStr = parts.slice(1).join('\t').trim()
+        const parsed = parseSingleEvent(eventType, dataStr)
         for (const c of parsed) chunks.push(c)
-        curLines.length = 0
       }
-    } else {
-      curLines.push(line)
+      continue
     }
-  }
-  if (curLines.length > 0) {
-    const parsed = parseEventLines(curLines)
-    for (const c of parsed) chunks.push(c)
+
+    // Standard SSE format: event: type or data: json
+    if (line.startsWith('event:')) {
+      const eventType = line.slice(6).trim()
+      // Collect all data: lines for this event (until blank line or next event:)
+      const dataLines: string[] = []
+      for (let j = i + 1; j < lines.length; j++) {
+        const nextLine = lines[j].trimEnd()
+        if (nextLine === '' || nextLine.startsWith('event:')) {
+          break
+        }
+        if (nextLine.startsWith('data:')) {
+          dataLines.push(nextLine.slice(5).trim().replace(/\r$/, ''))
+        }
+      }
+      // Parse the collected data lines
+      const dataStr = dataLines.join('')
+      const parsed = parseSingleEvent(eventType, dataStr)
+      for (const c of parsed) chunks.push(c)
+    }
   }
   return chunks
 }
 
-function parseEventLines(lines: string[]): Chunk[] {
-  let eventType: string | null = null
-  const dataLines: string[] = []
+/**
+ * Parse a single event with given type and data string
+ */
+function parseSingleEvent(eventType: string, dataStr: string): Chunk[] {
+  const out: Chunk[] = []
 
-  for (const line of lines) {
-    if (line.startsWith('event:')) {
-      eventType = line.slice(6).trim()
-    } else if (line.startsWith('data:')) {
-      dataLines.push(line.slice(5).trim().replace(/\r$/, ''))
+  if (!dataStr) return out
+
+  if (dataStr === '[DONE]') {
+    out.push({ done: true })
+    return out
+  }
+
+  let body: Record<string, any>
+  try {
+    body = JSON.parse(dataStr)
+  } catch {
+    return out
+  }
+
+  if (typeof body.data === 'string') {
+    try {
+      body = { ...body, ...JSON.parse(body.data) }
+      delete body.data
+    } catch {
+      // keep original body
     }
   }
 
-  if (!eventType) eventType = 'message'
-  if (dataLines.length === 0) return []
+  // Extract task_id, run_id, conversation_id from body if present
+  const { taskId, runId, conversationId } = body
+  const baseChunk: Partial<Chunk> = {}
+  if (taskId) baseChunk.task_id = taskId
+  if (runId) baseChunk.run_id = runId
+  if (conversationId) baseChunk.conversation_id = conversationId
 
-  const out: Chunk[] = []
-  for (const dl of dataLines) {
-    if (dl === '[DONE]') {
-      out.push({ done: true })
-      continue
-    }
-
-    let body: Record<string, any>
-    try {
-      body = JSON.parse(dl)
-    } catch {
-      continue
-    }
-
-    if (typeof body.data === 'string') {
-      try {
-        body = { ...body, ...JSON.parse(body.data) }
-        delete body.data
-      } catch {
-        // keep original body
-      }
-    }
-
-    // Extract task_id, run_id, conversation_id from body if present
-    const { taskId, runId, conversationId } = body
-    const baseChunk: Partial<Chunk> = {}
-    if (taskId) baseChunk.task_id = taskId
-    if (runId) baseChunk.run_id = runId
-    if (conversationId) baseChunk.conversation_id = conversationId
-
-    switch (eventType) {
-      case 'stream_start':
-      case 'stream.start':    out.push({ ...baseChunk, mode: body.mode as any }); break
-      case 'think':        out.push({ ...baseChunk, think: body.content }); break
-      case 'think_done':   out.push({ ...baseChunk, think_done: true }); break
-      case 'content':      out.push({ ...baseChunk, content: body.content }); break
-      case 'message':      out.push({ ...baseChunk, content: body.content }); break
-      case 'step_update':  out.push({ ...baseChunk, step_update: body as any }); break
-      case 'interaction':  out.push({ ...baseChunk, interaction: body as any }); break
-      case 'confirm_request':     out.push({ ...baseChunk, confirm_request: body as any }); break
-      case 'slot_fill':
-      case 'slot_fill_request':    out.push({ ...baseChunk, slot_fill: body as any }); break
-      case 'risk_confirm_request': out.push({ ...baseChunk, risk_confirm_request: body as any }); break
-      case 'approval_request':     out.push({ ...baseChunk, approval_request: body as any }); break
-      case 'tool_call':    out.push({ ...baseChunk, tool_call: body as any }); break
-      case 'tool_result':  out.push({ ...baseChunk, tool_result: body as any }); break
-      case 'done':         out.push({ ...baseChunk, done: true }); break
-      case 'error':        out.push({ ...baseChunk, error: body.message || JSON.stringify(body) }); break
-    }
+  switch (eventType) {
+    case 'stream_start':
+    case 'stream.start':    out.push({ ...baseChunk, mode: body.mode as any }); break
+    case 'think':        out.push({ ...baseChunk, think: body.content }); break
+    case 'think_done':   out.push({ ...baseChunk, think_done: true }); break
+    case 'content':      out.push({ ...baseChunk, content: body.content }); break
+    case 'message':      out.push({ ...baseChunk, content: body.content }); break
+    case 'step_update':  out.push({ ...baseChunk, step_update: body as any }); break
+    case 'interaction':  out.push({ ...baseChunk, interaction: body as any }); break
+    case 'confirm_request':     out.push({ ...baseChunk, confirm_request: body as any }); break
+    case 'slot_fill':
+    case 'slot_fill_request':    out.push({ ...baseChunk, slot_fill: body as any }); break
+    case 'risk_confirm_request': out.push({ ...baseChunk, risk_confirm_request: body as any }); break
+    case 'approval_request':     out.push({ ...baseChunk, approval_request: body as any }); break
+    case 'tool_call':    out.push({ ...baseChunk, tool_call: body as any }); break
+    case 'tool_result':  out.push({ ...baseChunk, tool_result: body as any }); break
+    case 'done':         out.push({ ...baseChunk, done: true }); break
+    case 'error':        out.push({ ...baseChunk, error: body.message || JSON.stringify(body) }); break
   }
   return out
 }
