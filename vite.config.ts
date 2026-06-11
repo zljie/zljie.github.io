@@ -61,7 +61,27 @@ const devConfig = {
   },
 }
 
-export default defineConfig(({ command }) => {
+// Examples build config (for vercel deployment)
+const examplesBuild = {
+  root: 'examples',
+  build: {
+    outDir: '../dist-examples',
+    rollupOptions: {
+      input: resolve(__dirname, 'examples/index.html'),
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
+}
+
+export default defineConfig(({ command, mode }) => {
+  // Examples mode: no dts plugin needed
+  if (mode === 'examples') {
+    return { plugins: [vue()], ...examplesBuild }
+  }
   if (command === 'serve') {
     return { plugins, ...devConfig }
   }

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>请求流转路径 — ODEAS Agent 标准框架</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-soft: #f6f8fa;
+      --bg-alt: #f0f2f5;
+      --border: #d0d7de;
+      --text-1: #24292f;
+      --text-2: #57606a;
+      --text-3: #8b949e;
+      --l1: #7F77DD; --l1-bg: #EEEDFE; --l1-dark: #3C3489;
+      --l2: #1D9E75; --l2-bg: #E1F5EE; --l2-dark: #085041;
+      --l3: #378ADD; --l3-bg: #E6F1FB; --l3-dark: #0C447C;
+      --l4: #639922; --l4-bg: #EAF3DE; --l4-dark: #27500A;
+      --l5: #BA7517; --l5-bg: #FAEEDA; --l5-dark: #633806;
+      --l6: #D4537E; --l6-bg: #FBEAF0; --l6-dark: #72243E;
+      --l7: #E07B39; --l7-bg: #FDF0E6; --l7-dark: #7A3D10;
+      --m1: #888780; --m1-bg: #F1EFE8; --m1-dark: #444441;
+      --m2: #E24B4A; --m2-bg: #FCEBEB; --m2-dark: #791F1F;
+      --m3: #378ADD; --m3-bg: #E6F1FB; --m3-dark: #0C447C;
+      --brand: #646cff;
+      --brand-soft: rgba(100, 108, 255, 0.12);
+      --hitl: #E07B39; --hitl-bg: #FDF0E6;
+    }
+    html[data-theme="dark"] {
+      --bg: #0d1117;
+      --bg-soft: #161b22;
+      --bg-alt: #1c2128;
+      --border: #30363d;
+      --text-1: #c9d1d9;
+      --text-2: #b1bac4;
+      --text-3: #8b949e;
+      --brand: #7c85ff;
+      --brand-soft: rgba(124, 133, 255, 0.15);
+      --l1-bg: #1e1b42; --l1: #a59eff;
+      --l2-bg: #0d3325; --l2: #5ed4a8;
+      --l3-bg: #0d2d4a; --l3: #6bb3f0;
+      --l4-bg: #1a2e0a; --l4: #9dd44f;
+      --l5-bg: #3d2800; --l5: #f0b860;
+      --l6-bg: #3d0d1e; --l6: #f080b0;
+      --l7-bg: #3d1a00; --l7: #f0a060;
+      --m1-bg: #2a2820; --m1: #c0bfb8;
+      --m2-bg: #3d0d0d; --m2: #f08080;
+      --m3-bg: #0d2d4a; --m3: #6bb3f0;
+      --hitl-bg: #3d1a00; --hitl: #f0a060;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    /* ── Topbar ─────────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 60px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-icon { font-size: 1.3rem; }
+    .topbar-title { font-size: 0.95rem; font-weight: 700; }
+    .topbar-sub { font-size: 0.72rem; color: var(--text-3); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .trace-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-3);
+    }
+    .theme-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-soft);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--brand); }
+    /* ── Page layout ─────────────────────────────────────────── */
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 48px; }
+    .hero-title {
+      font-size: 2.2rem; font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--l1) 0%, var(--l3) 50%, var(--l6) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-scenario {
+      font-size: 1.05rem; color: var(--text-2);
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 24px;
+      display: inline-block;
+    }
+    .hero-scenario span { color: var(--brand); font-weight: 700; }
+
+    /* ── Arch overview ───────────────────────────────────────── */
+    .arch-overview {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .arch-title {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-3); margin-bottom: 14px;
+    }
+    .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .arch-m {
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .arch-m-name { color: var(--text-2); font-weight: 400; font-size: 0.7rem; }
+    .arch-divider {
+      grid-column: 1 / -1;
+      text-align: center; font-size: 0.65rem;
+      color: var(--text-3); padding: 4px 0;
+      letter-spacing: 0.05em;
+    }
+    .arch-layers {
+      grid-column: 1 / -1;
+      display: flex; gap: 6px;
+    }
+    .arch-layer-cell {
+      flex: 1; padding: 8px 4px; border-radius: 6px;
+      text-align: center; font-size: 0.75rem; font-weight: 800;
+    }
+    .arch-layer-sub {
+      display: block; font-size: 0.55rem;
+      font-weight: 400; margin-top: 2px; opacity: 0.8;
+    }
+
+    /* ── Section labels ──────────────────────────────────────── */
+    .section-label {
+      display: flex; align-items: center; gap: 12px;
+      margin: 40px 0 20px;
+    }
+    .section-label-line { flex: 1; height: 1px; background: var(--border); }
+    .section-label-text {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    /* ── Flow ────────────────────────────────────────────────── */
+    .flow-direction {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 20px;
+      font-size: 0.8rem; color: var(--text-3); font-weight: 500;
+    }
+    .flow-direction svg { width: 16px; height: 16px; }
+
+    /* ── Step card ───────────────────────────────────────────── */
+    .step-card {
+      display: flex; gap: 16px;
+      margin-bottom: 12px;
+      transition: transform 0.2s;
+    }
+    .step-card:hover { transform: translateX(4px); }
+    .step-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .step-num-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 0.85rem;
+      flex-shrink: 0; box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    .step-line { width: 2px; flex: 1; min-height: 20px; margin-top: 4px; opacity: 0.4; border-radius: 1px; }
+    .step-line-done { background: currentColor; }
+    .step-body {
+      flex: 1; border-radius: 10px; border: 1px solid var(--border);
+      overflow: hidden; margin-bottom: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .step-body:hover { border-color: currentColor; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .step-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+    }
+    .step-layer-badge {
+      font-size: 0.72rem; font-weight: 800; color: #fff;
+      padding: 3px 10px; border-radius: 6px; flex-shrink: 0;
+    }
+    .step-head-info { flex: 1; }
+    .step-head-title { font-size: 0.88rem; font-weight: 700; }
+    .step-head-sub { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+    .step-body-content { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .step-row { font-size: 0.8rem; color: var(--text-2); }
+    .step-row strong { color: var(--text-1); }
+    .step-output {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; line-height: 1.7;
+      color: var(--text-2); overflow-x: auto;
+      white-space: pre;
+    }
+    .step-io-label {
+      font-size: 0.62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-3); margin-bottom: 4px;
+    }
+    .step-highlight { color: var(--hitl); font-weight: 600; }
+    .step-action {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 8px; font-size: 0.78rem;
+      background: color-mix(in srgb, var(--brand) 8%, var(--bg));
+      border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+      color: var(--brand); font-weight: 500;
+    }
+    .step-action-icon { flex-shrink: 0; }
+    /* User reply badge */
+    .user-reply {
+      display: flex; align-items: center; gap: 8px;
+      margin: 4px 0 12px 48px;
+      font-size: 0.78rem; color: var(--l1); font-weight: 500;
+      padding: 6px 12px;
+      border: 1px dashed var(--l1); border-radius: 8px;
+      background: var(--l1-bg); opacity: 0.8;
+    }
+    /* HITL branch */
+    .hitl-branch {
+      margin: 6px 0 6px 48px;
+      border-radius: 8px; border: 1px solid var(--hitl);
+      background: var(--hitl-bg); padding: 10px 14px;
+      font-size: 0.78rem; color: var(--l7-dark);
+    }
+    .hitl-branch-title { font-weight: 700; margin-bottom: 4px; font-size: 0.8rem; }
+    .hitl-branch-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .hitl-tag { padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; background: #fff; border: 1px solid; }
+    /* Cross-cutting banners */
+    .cross-banner {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin: 8px 0; padding: 10px 14px;
+      border-radius: 8px; border-left: 3px solid;
+      font-size: 0.78rem;
+    }
+    .cross-banner-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .cross-banner-title { font-weight: 700; font-size: 0.8rem; margin-bottom: 2px; }
+    .cross-banner-body { color: var(--text-2); line-height: 1.5; }
+
+    /* ── Return trip ─────────────────────────────────────────── */
+    .return-trip { margin-top: 24px; }
+    .return-phases { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .return-phase {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 10px; border-left: 4px solid;
+    }
+    .return-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+    }
+    .return-phase-info { flex: 1; }
+    .return-phase-name { font-size: 0.88rem; font-weight: 600; }
+    .return-phase-desc { font-size: 0.75rem; color: var(--text-2); margin-top: 2px; }
+
+    /* ── Cross-cutting section ───────────────────────────────── */
+    .cross-modules { display: flex; flex-direction: column; gap: 12px; }
+    .cross-module {
+      border-radius: 10px; border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .cross-module-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+    }
+    .cross-module-badge {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 0.85rem;
+    }
+    .cross-module-title { font-size: 0.88rem; font-weight: 700; }
+    .cross-module-desc { font-size: 0.72rem; color: var(--text-3); }
+    .cross-module-body { padding: 12px 16px; border-top: 1px solid var(--border); }
+    .cross-module-row { font-size: 0.75rem; color: var(--text-2); margin-bottom: 4px; }
+
+    /* ── Legend ──────────────────────────────────────────────── */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 40px; padding: 16px;
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-2); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-swatch { width: 20px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .footer {
+      text-align: center; margin-top: 60px;
+      font-size: 0.72rem; color: var(--text-3);
+      padding: 20px 0; border-top: 1px solid var(--border);
+    }
+
+    /* ── Animations ─────────────────────────────────────────── */
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(100,108,255,0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(100,108,255,0); }
+    }
+    .step-card { animation: fadeInUp 0.4s ease both; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .step-card:nth-child(1) { animation-delay: 0.05s; }
+    .step-card:nth-child(2) { animation-delay: 0.1s; }
+    .step-card:nth-child(3) { animation-delay: 0.15s; }
+    .step-card:nth-child(4) { animation-delay: 0.2s; }
+    .step-card:nth-child(5) { animation-delay: 0.25s; }
+    .step-card:nth-child(6) { animation-delay: 0.3s; }
+    .step-card:nth-child(7) { animation-delay: 0.35s; }
+  </style>
+</head>
+<body>
+
+<!-- ── Topbar ─────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-icon">🏗️</span>
+    <div>
+      <div class="topbar-title">请求流转路径</div>
+      <div class="topbar-sub">BeBios Agent 标准框架 v1</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="trace-badge">trace-a3f8b2c1</span>
+    <button class="theme-btn" onclick="toggleTheme()" title="切换主题">🌙</button>
+  </div>
+</header>
+
+<!-- ── Page ───────────────────────────────────────────────── -->
+<main class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1 class="hero-title">请求流转路径</h1>
+    <div class="hero-scenario">
+      场景：用户说「帮我提交<span>3万元</span>的采购申请」
+    </div>
+  </div>
+
+  <!-- Architecture overview -->
+  <div class="arch-overview">
+    <div class="arch-title">ODEAS Agent 标准框架 — 7层业务栈 + 3层横切</div>
+    <div class="arch-grid">
+      <div class="arch-m" style="background: var(--m1-bg); color: var(--m1-dark);">
+        M1 <span class="arch-m-name">反思与学习引擎</span>
+      </div>
+      <div class="arch-m" style="background: var(--m2-bg); color: var(--m2-dark);">
+        M2 <span class="arch-m-name">安全与治理层</span>
+      </div>
+      <div class="arch-m" style="background: var(--m3-bg); color: var(--m3-dark);">
+        M3 <span class="arch-m-name">基础设施横切层</span>
+      </div>
+      <div class="arch-divider">业务层 · 纵向流转</div>
+      <div class="arch-layers">
+        <div class="arch-layer-cell" style="background: var(--l1-bg); color: var(--l1-dark);">
+          L1<span class="arch-layer-sub">交互呈现</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l2-bg); color: var(--l2-dark);">
+          L2<span class="arch-layer-sub">语义理解</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l3-bg); color: var(--l3-dark);">
+          L3<span class="arch-layer-sub">上下文状态</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l4-bg); color: var(--l4-dark);">
+          L4<span class="arch-layer-sub">记忆与知识</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l5-bg); color: var(--l5-dark);">
+          L5<span class="arch-layer-sub">规划与决策</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l6-bg); color: var(--l6-dark);">
+          L6<span class="arch-layer-sub">工具执行</span>
+        </div>
+        <div class="arch-layer-cell" style="background: var(--l7-bg); color: var(--l7-dark);">
+          L7<span class="arch-layer-sub">多Agent编排</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request downward -->
+  <div class="section-label">
+    <div class="section-label-line"></div>
+    <div class="section-label-text">请求向下 · 业务层</div>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="flow-direction">
+    <svg viewBox="0 0 10 16" fill="none"><path d="M5 0v12M1 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    请求流转
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l1);">1</div>
+      <div class="step-line" style="background: var(--l1);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l1) 30%, transparent);">
+      <div class="step-head" style="background: var(--l1-bg);">
+        <span class="step-layer-badge" style="background: var(--l1);">L1</span>
+        <div class="step-head-info">
+          <div class="step-head-title">交互呈现层</div>
+          <div class="step-head-sub">企微渠道接入 → 消息格式标准化</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>「帮我提交3万元的采购申请」| 渠道: 企微 | 用户ID: user_001</div>
+        <div class="step-row"><strong>子模块：</strong>渠道接入网关 · 富媒体传输器 · HITL 交互卡片引擎 · 输出渲染器</div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">StandardMessage{
+  text: "帮我提交3万元的采购申请",
+  channel: "wework",
+  userId: "user_001",
+  msgId: "msg-uuid-001",
+  sessionId: "sess-uuid-001",
+  timestamp: "2026-06-11T10:00:00Z"
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l2);">2</div>
+      <div class="step-line" style="background: var(--l2);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l2) 30%, transparent);">
+      <div class="step-head" style="background: var(--l2-bg);">
+        <span class="step-layer-badge" style="background: var(--l2);">L2</span>
+        <div class="step-head-info">
+          <div class="step-head-title">语义理解层</div>
+          <div class="step-head-sub">意图识别 → 槽位提取 → 语义映射</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>StandardMessage (来自 L1)</div>
+        <div class="step-row"><strong>子模块：</strong>意图识别器 · 槽位提取器 · 语义映射引擎</div>
+        <div class="cross-banner" style="border-color: var(--m2); background: var(--m2-bg);">
+          <span class="cross-banner-icon">⚡</span>
+          <div>
+            <div class="cross-banner-title">M2 · 输入过滤器</div>
+            <div class="cross-banner-body">Prompt 注入检测 → PII 脱敏 → 权限校验通过</div>
+          </div>
+        </div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">{
+  intent: "submit_purchase_request",
+  intentConfidence: 0.94,
+  slots: {
+    amount: { value: 30000, unit: "CNY", raw: "3万元", filled: true },
+    type: { value: "purchase", filled: true },
+    vendor: { filled: false, missing: true },
+    description: { filled: false }
+  },
+  semanticMap: { "提交": "发起审批", "采购": "purchase" }
+}</div>
+        </div>
+        <div class="step-action">
+          <span class="step-action-icon">✓</span>
+          识别意图「提交采购申请」，槽位「金额」「类型」已填充，「供应商」缺失
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l3);">3</div>
+      <div class="step-line" style="background: var(--l3);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l3) 30%, transparent);">
+      <div class="step-head" style="background: var(--l3-bg);">
+        <span class="step-layer-badge" style="background: var(--l3);">L3</span>
+        <div class="step-head-info">
+          <div class="step-head-title">上下文状态层</div>
+          <div class="step-head-sub">槽位追踪 → 对话状态机 → 追问策略生成</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>意图 + 槽位状态 (amount✓ type✓ vendor✗)</div>
+        <div class="step-row"><strong>子模块：</strong>会话状态管理器 · 槽位填充追踪器 · 对话状态机 · HITL 状态同步器</div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">{
+  filledSlots: ["amount", "type"],
+  missingSlots: ["vendor"],
+  state: "clarifying",
+  askQuestion: "请问供应商是哪家公司？",
+  hitlCard: {
+    id: "hitl-vendor-001",
+    type: "slot_fill",
+    title: "补充供应商信息"
+  }
+}</div>
+        </div>
+        <div class="step-highlight" style="font-size: 0.82rem; color: var(--hitl);">
+          💬 追问：「请问供应商是哪家公司？」
+        </div>
+        <div class="user-reply">
+          <span>👤</span> 用户回复：「华为」
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l4);">4</div>
+      <div class="step-line" style="background: var(--l4);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l4) 30%, transparent);">
+      <div class="step-head" style="background: var(--l4-bg);">
+        <span class="step-layer-badge" style="background: var(--l4);">L4</span>
+        <div class="step-head-info">
+          <div class="step-head-title">记忆与知识层</div>
+          <div class="step-head-sub">本体解析 → 知识检索 → 规则注入</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>槽位 {amount: 30000, vendor: "华为", type: "purchase"}</div>
+        <div class="step-row"><strong>子模块：</strong>知识检索器 · 本体解析器 · 工作记忆管理器 · 长期记忆库</div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">{
+  ontologyValidated: {
+    vendor: { id: "vendor-huawei", name: "华为", type: "trusted", valid: true }
+  },
+  knowledgeRetrieved: [
+    { content: "采购金额 ≥ ¥50,000 需财务总监审批", source: "采购制度-v3.2" },
+    { content: "采购金额 ≥ ¥100,000 需 CFO 会签", source: "采购制度-v3.2" }
+  ],
+  relevantRules: [
+    { rule: "amount >= 50000 → director_approval_required", triggered: false, amount: 30000 }
+  ],
+  contextInjection: "当前金额 ¥30,000，低于 ¥50,000 阈值，无需财务总监审批。"
+}</div>
+        </div>
+        <div class="step-action">
+          <span class="step-action-icon">✓</span>
+          验证「华为」为可信供应商。3万元 &lt; 5万阈值，不触发总监审批。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l5);">5</div>
+      <div class="step-line" style="background: var(--l5);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l5) 30%, transparent);">
+      <div class="step-head" style="background: var(--l5-bg);">
+        <span class="step-layer-badge" style="background: var(--l5);">L5</span>
+        <div class="step-head-info">
+          <div class="step-head-title">规划与决策层</div>
+          <div class="step-head-sub">任务拆解 → 规则校验 → 风险评估</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>意图 + 槽位 + 知识 (threshold: 50000, cfoThreshold: 100000)</div>
+        <div class="step-row"><strong>子模块：</strong>任务拆解器 · 执行计划生成器 · 规则校验器 · 风险评估器</div>
+        <div class="cross-banner" style="border-color: var(--m2); background: var(--m2-bg);">
+          <span class="cross-banner-icon">⚡</span>
+          <div>
+            <div class="cross-banner-title">M2 · 权限校验</div>
+            <div class="cross-banner-body">RBAC 权限校验：用户角色 employee，有权提交限额内采购申请（3万 &lt; 10万限额）</div>
+          </div>
+        </div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">{
+  subTasks: [
+    { id: "task-1", action: "create_purchase_order", params: { vendor: "华为", amount: 30000, type: "purchase" } },
+    { id: "task-2", action: "submit_approval", params: { assignee: "张经理", threshold: 50000 } }
+  ],
+  ruleCheck: { amountBelowThreshold: true, requiresDirectorApproval: false },
+  riskAssessment: { level: "low", requiresHitl: false },
+  plan: ["create_po", "submit_approval"]
+}</div>
+        </div>
+        <div class="hitl-branch">
+          <div class="hitl-branch-title">HITL 分支（L5）</div>
+          <div class="hitl-branch-row">
+            <span class="hitl-tag" style="color: var(--l5-dark); border-color: var(--l5);">金额 ≥ 5万</span>
+            <span style="color: var(--text-3);">→</span>
+            <span class="hitl-tag" style="color: var(--m2-dark); border-color: var(--m2);">风险=高 → HITL 挂起</span>
+          </div>
+          <div class="hitl-branch-row" style="margin-top: 6px; color: var(--text-3); font-size: 0.72rem;">
+            金额 3万元 &lt; 5万 → <span style="color: var(--l4-dark); font-weight: 600;">风险=低 → 自动执行</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step-card">
+    <div class="step-dot-wrap">
+      <div class="step-num-circle" style="background: var(--l6);">6</div>
+      <div class="step-line" style="background: var(--l6);"></div>
+    </div>
+    <div class="step-body" style="border-color: color-mix(in srgb, var(--l6) 30%, transparent);">
+      <div class="step-head" style="background: var(--l6-bg);">
+        <span class="step-layer-badge" style="background: var(--l6);">L6</span>
+        <div class="step-head-info">
+          <div class="step-head-title">工具与动作执行层</div>
+          <div class="step-head-sub">ERP API 调用 → 幂等保障 → 熔断降级</div>
+        </div>
+      </div>
+      <div class="step-body-content">
+        <div class="step-row"><strong>输入：</strong>执行计划 [create_po, submit_approval] + 幂等键</div>
+        <div class="step-row"><strong>子模块：</strong>工具注册中心 · 调用编排器 · 结果标准化器 · 可靠性保障器 · 熔断降级器</div>
+        <div class="cross-banner" style="border-color: var(--m3); background: var(--m3-bg);">
+          <span class="cross-banner-icon">⚡</span>
+          <div>
+            <div class="cross-banner-title">M3 · Token 成本管控</div>
+            <div class="cross-banner-body">Token 成本归因：本次对话累计消耗 ¥0.12，预算充足，未触发限流</div>
+          </div>
+        </div>
+        <div>
+          <div class="step-io-label">输出</div>
+          <div class="step-output">{
+  toolCalls: [
+    {
+      tool: "erp_create_po",
+      status: "success",
+      result: { poId: "PO-20260611-001", vendor: "华为", amount: 30000, status: "created" },
+      latencyMs: 847, retryCount: 0
+    },
+    {
+      tool: "approval_submit",
+      status: "success",
+      result: { approvalId: "APR-20260611-001", assignee: "张经理", status: "pending" },
+      latencyMs: 312
+    }
+  ],
+  idempotencyChecked: true,
+  circuitBreaker: "closed"
+}</div>
+        </div>
+        <div class="step-action">
+          <span class="step-action-icon">✓</span>
+          采购单 PO-20260611-001 创建成功，审批 APR-20260611-001 已提交给张经理
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response return -->
+  <div class="section-label">
+    <div class="section-label-line"></div>
+    <div class="section-label-text">响应回程 · 自下而上</div>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="flow-direction">
+    <svg viewBox="0 0 10 16" fill="none"><path d="M5 16V4M1 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    响应回程
+  </div>
+
+  <div class="return-trip">
+    <div class="return-phases">
+      <div class="return-phase" style="border-color: var(--l6);">
+        <div class="return-num" style="background: var(--l6);">7</div>
+        <div class="return-phase-info">
+          <div class="return-phase-name">L6 结果标准化</div>
+          <div class="return-phase-desc">ERP 响应格式 → 统一 Response 格式 { poId, approvalId, status }</div>
+        </div>
+      </div>
+      <div class="return-phase" style="border-color: var(--l3);">
+        <div class="return-num" style="background: var(--l3);">8</div>
+        <div class="return-phase-info">
+          <div class="return-phase-name">L3 状态更新</div>
+          <div class="return-phase-desc">槽位全部填充 → 对话状态 completed → 长期记忆归档用户偏好</div>
+        </div>
+      </div>
+      <div class="return-phase" style="border-color: var(--l1);">
+        <div class="return-num" style="background: var(--l1);">9</div>
+        <div class="return-phase-info">
+          <div class="return-phase-name">L1 输出渲染</div>
+          <div class="return-phase-desc">Markdown 卡片 → 采购单详情 + 审批进度 → 流式推送企微</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cross-cutting modules -->
+  <div class="section-label">
+    <div class="section-label-line"></div>
+    <div class="section-label-text">横切模块 · 垂直穿透</div>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="cross-modules">
+
+    <!-- M2 -->
+    <div class="cross-module">
+      <div class="cross-module-head" style="background: var(--m2-bg);">
+        <div class="cross-module-badge" style="background: var(--m2);">M2</div>
+        <div>
+          <div class="cross-module-title">安全与治理层</div>
+          <div class="cross-module-desc">全链路安全检查：输入过滤 → PII 脱敏 → 权限校验 → 输出审核</div>
+        </div>
+      </div>
+      <div class="cross-module-body">
+        <div class="cross-module-row"><strong>L2 之后：</strong>输入过滤检测 Prompt 注入 → PII 脱敏（金额字段）→ 审计日志记录</div>
+        <div class="cross-module-row"><strong>L5 之后：</strong>RBAC 权限校验：用户角色 employee，有权创建 3万元采购单（限额内）</div>
+        <div class="cross-module-row"><strong>L1 回程：</strong>输出审核（幻觉检测）→ 敏感信息过滤</div>
+      </div>
+    </div>
+
+    <!-- M1 -->
+    <div class="cross-module">
+      <div class="cross-module-head" style="background: var(--m1-bg);">
+        <div class="cross-module-badge" style="background: var(--m1);">M1</div>
+        <div>
+          <div class="cross-module-title">反思与学习引擎</div>
+          <div class="cross-module-desc">全链路日志记录 → 失败归因 → 知识持续迭代</div>
+        </div>
+      </div>
+      <div class="cross-module-body">
+        <div class="cross-module-row"><strong>全链路：</strong>操作日志记录 trace-a3f8b2c1 → 意图识别置信度 0.94 → 供应商「华为」→ 本体同步更新</div>
+        <div class="cross-module-row"><strong>失败归因：</strong>异常节点定位 → 根因分析 → 流程优化建议</div>
+      </div>
+    </div>
+
+    <!-- M3 -->
+    <div class="cross-module">
+      <div class="cross-module-head" style="background: var(--m3-bg);">
+        <div class="cross-module-badge" style="background: var(--m3);">M3</div>
+        <div>
+          <div class="cross-module-title">基础设施横切层</div>
+          <div class="cross-module-desc">可观测性 → Token 成本管控 → 限流 → 多租户隔离</div>
+        </div>
+      </div>
+      <div class="cross-module-body">
+        <div class="cross-module-row"><strong>L6 执行前：</strong>Token 成本归因：本次对话累计消耗 ¥0.12，预算 8000 → 剩余 4760</div>
+        <div class="cross-module-row"><strong>限流检查：</strong>QPS 限流 100，当前 23 → 通过</div>
+        <div class="cross-module-row"><strong>多租户隔离：</strong>数据范围校验 user_001 → 租户数据隔离确认</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l1-bg); border: 1px solid var(--l1);"></div>L1 交互呈现层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l2-bg); border: 1px solid var(--l2);"></div>L2 语义理解层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l3-bg); border: 1px solid var(--l3);"></div>L3 上下文状态层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l4-bg); border: 1px solid var(--l4);"></div>L4 记忆与知识层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l5-bg); border: 1px solid var(--l5);"></div>L5 规划与决策层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l6-bg); border: 1px solid var(--l6);"></div>L6 工具与动作执行层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--l7-bg); border: 1px solid var(--l7);"></div>L7 多Agent编排层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--m2-bg); border: 1px solid var(--m2);"></div>M2 安全与治理层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--m3-bg); border: 1px solid var(--m3);"></div>M3 基础设施横切层</div>
+    <div class="legend-item"><div class="legend-swatch" style="background: var(--hitl-bg); border: 1px solid var(--hitl);"></div>HITL 分支</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    BeBios Agent 标准框架 v1 &nbsp;·&nbsp; 场景：采购申请提交流程 &nbsp;·&nbsp; Trace ID: trace-a3f8b2c1
+  </div>
+
+</main>
+
+<script>
+  // Theme toggle
+  function toggleTheme() {
+    const html = document.documentElement
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    document.querySelector('.theme-btn').textContent = next === 'dark' ? '☀️' : '🌙'
+    localStorage.setItem('odeas-theme', next)
+  }
+  const saved = localStorage.getItem('odeas-theme')
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved)
+    document.querySelector('.theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙'
+  } else {
+    // Auto-detect system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const theme = prefersDark ? 'dark' : 'light'
+    document.documentElement.setAttribute('data-theme', theme)
+    document.querySelector('.theme-btn').textContent = prefersDark ? '☀️' : '🌙'
+  }
+</script>
+
+</body>
+</html>

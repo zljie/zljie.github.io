@@ -131,6 +131,8 @@
       color: var(--vp-c-brand-1);
     }
   </style>
+  <script type="module" crossorigin src="/assets/index-DKoAQoUp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BERTUIls.css">
 </head>
 <body>
   <nav class="demo-nav">
@@ -138,7 +140,6 @@
     <button class="active" onclick="showDemo('full')">全屏聊天</button>
     <button onclick="showDemo('float')">悬浮组件</button>
     <button onclick="showDemo('components')">组件</button>
-    <button onclick="showDemo('odeas')">Agent 架构</button>
     <button id="theme-toggle" onclick="toggleTheme()" title="切换深色/浅色模式">
       <span id="theme-icon">🌙</span>
     </button>
@@ -160,7 +161,7 @@
     <section id="demo-components" class="demo-section">
       <h2>独立组件</h2>
       <p>单独使用组件以获得更多控制。</p>
-
+      
       <div class="demo-grid">
         <div class="demo-card">
           <h3>MarkdownBubble</h3>
@@ -179,23 +180,8 @@
         </div>
       </div>
     </section>
-
-    <section id="demo-odeas" class="demo-section">
-      <h2>ODEAS Agent 架构演示</h2>
-      <p>基于「帮我提交3万元的采购申请」场景，展示 Agent 系统 7层业务栈 + 3层横切的完整流转路径。</p>
-      <div id="odeas-app" style="height: 640px; border: 1px solid var(--vp-c-divider); border-radius: 12px; overflow: hidden;"></div>
-    </section>
   </main>
 
-  <script type="module">
-    import { createApp } from 'vue'
-    import { Chat, FloatChat, ODEASDemo } from '../src/index.ts'
-    import '../src/config.ts'
-
-    createApp(Chat).mount('#chat-app')
-    createApp(FloatChat).mount('#float-app')
-    createApp(ODEASDemo).mount('#odeas-app')
-  </script>
 
   <script>
     // 根据 prefers-color-scheme 检测初始主题

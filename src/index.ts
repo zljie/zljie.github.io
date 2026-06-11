@@ -9,6 +9,7 @@ export { default as FloatChat } from './components/FloatChat.vue'
 export { default as MarkdownBubble } from './components/MarkdownBubble.vue'
 export { default as AgentExecutionCard } from './components/AgentExecutionCard.vue'
 export { default as HumanInTheLoopCard } from './components/HumanInTheLoopCard.vue'
+export { default as ODEASDemo } from './components/ODEASDemo.vue'
 
 // Composables
 export { useChat } from './composables/useChat'
